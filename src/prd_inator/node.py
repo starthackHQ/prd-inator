@@ -5,9 +5,7 @@ from prd_inator.schema import (
     IdeaList, AntiAIScores, Constraints, Vulnerabilities,
     EvaluationRubric
 )
-from prd_inator.utils.llm import get_llm
-from prd_inator.utils.prompts import get_prompt
-from prd_inator.utils.logger import logger
+from prd_inator.utils import get_llm, get_prompt, logger
 from prd_inator.config import get_llm_config
 
 
