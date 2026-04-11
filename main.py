@@ -50,14 +50,27 @@ def main():
         result = run_pipeline(employer_input, llm_config=llm_config)
         
         print("✅ Pipeline complete!\n")
-        print("=" * 80)
-        print(result["final_prd"])
-        print("=" * 80)
         
-        # Optionally save to file
-        with open("output_prd.md", "w") as f:
-            f.write(result["final_prd"])
-        print("\n📄 PRD saved to output_prd.md")
+        # Save candidate PRD
+        print("=" * 80)
+        print("CANDIDATE-FACING PRD")
+        print("=" * 80)
+        print(result["candidate_prd"])
+        print("\n")
+        
+        with open("candidate_prd.md", "w") as f:
+            f.write(result["candidate_prd"])
+        print("📄 Candidate PRD saved to candidate_prd.md\n")
+        
+        # Save evaluation rubric
+        with open("evaluation_rubric.md", "w") as f:
+            f.write(result["evaluation_rubric_text"])
+        print("📄 Evaluation rubric saved to evaluation_rubric.md")
+        
+        # Save scoring signals
+        with open("scoring_signals.md", "w") as f:
+            f.write(result["scoring_signals"])
+        print("📄 Scoring signals saved to scoring_signals.md")
         
     except Exception as e:
         print(f"❌ Error: {e}")

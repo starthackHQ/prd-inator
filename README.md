@@ -4,7 +4,7 @@ An autonomous LangGraph pipeline that generates AI-resistant technical assignmen
 
 ## What it does
 
-Takes a single employer input and runs it through an 11-node agentic pipeline: generating ideas, filtering out AI-solvable ones, injecting real-world constraints, red-teaming for shortcuts, and producing a structured PRD with a hidden evaluation rubric.
+Takes a single employer input and runs it through a 9-node agentic pipeline: generating ideas, filtering out AI-solvable ones, injecting real-world constraints, red-teaming for shortcuts, and producing a structured PRD with a hidden evaluation rubric.
 
 ## Setup
 
@@ -94,13 +94,12 @@ result = run_pipeline(employer_input, llm_config=config)
 Employer inputs
   → Idea divergence engine
   → Diversity enforcer
-  → Anti-AI filter          ↺ loops back if ideas are too weak
+  → Anti-AI filter          ↺ loops back if ideas are too weak (max 3x)
   → Constraint injector
   → Scenario transformer
   → Adversarial agent
   → Patch node
   → Evaluation designer
-  → Self-critique loop      ↺ loops back if assignment is still generic
   → PRD generator
   → Output
 ```

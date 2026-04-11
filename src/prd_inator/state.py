@@ -1,6 +1,5 @@
 """Graph state definitions."""
 from typing import TypedDict, List, Dict, Any, Annotated
-from operator import add
 
 
 class GraphState(TypedDict):
@@ -24,7 +23,8 @@ class GraphState(TypedDict):
     
     # Evaluation phase
     evaluation_rubric: Dict[str, Any]  # scoring dimensions
-    critique_iterations: Annotated[int, lambda x, y: y]  # Always replace, don't add
     
     # Output
-    final_prd: str  # assembled PRD document
+    candidate_prd: str  # candidate-facing PRD
+    evaluation_rubric_text: str  # interviewer rubric
+    scoring_signals: str  # interviewer scoring signals

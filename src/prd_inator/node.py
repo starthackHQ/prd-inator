@@ -3,12 +3,11 @@ from typing import Literal
 from prd_inator.state import GraphState
 from prd_inator.schema import (
     IdeaList, AntiAIScores, Constraints, Vulnerabilities,
-    EvaluationRubric, CritiqueResult
+    EvaluationRubric
 )
 from prd_inator.utils.llm import get_llm
 from prd_inator.utils.prompts import get_prompt
 from prd_inator.config import get_llm_config
-from langgraph.types import Command
 
 
 def employer_input_node(state: GraphState) -> dict:
@@ -22,10 +21,7 @@ def employer_input_node(state: GraphState) -> dict:
             raise ValueError(f"Missing required field: {field}")
     
     print("✅ Employer input validated")
-    return {
-        "idea_loop_count": 0,
-        "critique_iterations": 0
-    }
+    return {"idea_loop_count": 0}
 
 
 def idea_divergence_engine(state: GraphState) -> dict:
@@ -231,38 +227,11 @@ def evaluation_designer(state: GraphState) -> dict:
     return {"evaluation_rubric": result.model_dump()}
 
 
-def self_critique_loop(state: GraphState) -> Command[Literal["constraint_injector", "prd_generator"]]:
-    """Meta-critique the assignment quality with Command for routing."""
-    constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
-    rubric_text = str(state["evaluation_rubric"])
-    seniority = state["employer_input"].get("seniority", "mid-level")
-    
-    prompt = get_prompt("self_critique").format(
-        scenario=state["scenario"],
-        constraints=constraints_text,
-        rubric=rubric_text,
-        seniority=seniority
-    )
-    
-    config = get_llm_config().get_config("self_critique")
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.3)
-    structured_llm = llm.with_structured_output(CritiqueResult)
-    
-    result = structured_llm.invoke(prompt)
-    
-    # Use Command to update state AND route
-    if not result.passed and state["critique_iterations"] < 3:
-        return Command(
-            update={"critique_iterations": state["critique_iterations"] + 1},
-            goto="constraint_injector"
-        )
-    
-    return Command(goto="prd_generator")
-
-
 def prd_generator(state: GraphState) -> dict:
-    """Assemble final PRD document."""
+    """Assemble final PRD document with structured output."""
     try:
+        from prd_inator.schema import FinalPRD
+        
         constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
         rubric_text = str(state["evaluation_rubric"])
         vulnerabilities_text = "\n".join([
@@ -279,9 +248,15 @@ def prd_generator(state: GraphState) -> dict:
         
         config = get_llm_config().get_config("prd_generator")
         llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.4)
-        result = llm.invoke(prompt)
+        structured_llm = llm.with_structured_output(FinalPRD)
         
-        return {"final_prd": result.content}
+        result = structured_llm.invoke(prompt)
+        
+        return {
+            "candidate_prd": result.candidate_prd,
+            "evaluation_rubric_text": result.evaluation_rubric,
+            "scoring_signals": result.scoring_signals
+        }
     
     except Exception as e:
         print(f"❌ Error in prd_generator: {e}")

@@ -1,22 +1,44 @@
 idea_divergence: |
-  You are an expert at designing technical take-home assignments that test real engineering judgment.
+  You are an expert at designing novel technical assignments through cross-domain recombination.
   
-  Given the following employer requirements:
+  Given the following requirements:
   - Role: {role}
   - Tech Stack: {tech_stack}
   - Domain: {domain}
   - Seniority: {seniority}
   
-  Generate 15 fundamentally different project ideas. Each idea must be:
-  - A different system type (realtime, async, event-driven, offline-first, batch processing, etc.)
-  - Have different failure modes and edge cases
-  - Test different aspects of engineering judgment
+  APPROACH: Generate ideas by recombining concepts from different domains.
   
-  DO NOT create variations of the same idea with different names. Each must be genuinely distinct.
+  Think about the core domain ({domain}) and map its problems to mechanisms from:
+  - Distributed Systems (consensus, CRDTs, eventual consistency, conflict resolution)
+  - Gaming (multiplayer sync, matchmaking, leaderboards, real-time state)
+  - Biology (swarm behavior, immune systems, evolution, adaptation)
+  - Economics (markets, auctions, incentives, resource allocation)
+  - Collaboration Tools (presence, co-editing, version control, branching)
+  
+  Generate 15 fundamentally different project ideas by combining:
+  - A core problem from {domain}
+  - A mechanism from another domain
+  - A specific system architecture pattern
+  
+  Each idea must be:
+  - A different system type (realtime, async, event-driven, offline-first, CRDT-based, queue-based, etc.)
+  - Derived from a unique cross-domain combination
+  - Introduce real engineering tradeoffs (not just CRUD)
+  - Test different failure modes and edge cases
+  - Appropriate for {seniority} level
+  
+  AVOID:
+  - Generic CRUD apps
+  - Simple form-to-database flows
+  - Variations of the same idea with different names
+  - Shallow analogies without mechanism depth
   
   For each idea, provide:
-  - title: A clear, specific project name
-  - description: 2-3 sentences explaining what needs to be built and why it's interesting
+  - title: Clear, specific project name
+  - description: 2-3 sentences explaining what needs to be built, the cross-domain mechanism used, and why it's interesting
+  
+  Focus on ideas that make candidates think about system design, not just implementation speed.
 
 diversity_enforcer: |
   You are reviewing a list of project ideas to remove semantic duplicates.
@@ -157,50 +179,8 @@ evaluation_designer: |
   
   Make criteria specific and observable. Avoid vague terms like "good" or "clean code."
 
-self_critique: |
-  You are reviewing this assignment to ensure it's appropriate and genuinely tests engineering judgment.
-  
-  Seniority level: {seniority}
-  
-  Scenario:
-  {scenario}
-  
-  Constraints:
-  {constraints}
-  
-  Rubric:
-  {rubric}
-  
-  Answer these questions based on the seniority level:
-  
-  For Entry-level/Fresher (3-5 hours max):
-  1. Can this be completed in 3-5 focused hours?
-  2. Does it test ONE core skill well (not everything at once)?
-  3. Is the scope clear enough that a junior won't get lost?
-  
-  For Mid-level (4-8 hours):
-  1. Can this be completed in 4-8 hours?
-  2. Does it test 2-3 complementary skills?
-  3. Are the tradeoffs realistic for this level?
-  
-  For Senior (6-12 hours):
-  1. Can this be completed in 6-12 hours?
-  2. Does it test system thinking and tradeoff articulation?
-  3. Is there enough ambiguity to see how they handle it?
-  
-  General checks (all levels):
-  - Can this still be solved via a template or boilerplate? (should be NO)
-  - Is the rubric specific enough to differentiate candidates? (should be YES)
-  - Is this testing thinking or just implementation speed? (should be THINKING)
-  
-  Return:
-  - passed: true ONLY if the assignment is appropriate for the seniority level AND passes all checks
-  - issues: List of specific problems (empty if passed)
-  
-  Be STRICT about scope. If it's too complex for the level, mark as failed with specific issues.
-
 prd_generator: |
-  You are assembling the final PRD document.
+  You are assembling the final PRD document in THREE SEPARATE sections.
   
   Scenario:
   {scenario}
@@ -214,21 +194,31 @@ prd_generator: |
   Vulnerabilities (for reference):
   {vulnerabilities}
   
-  Create a comprehensive PRD with two sections:
+  Create THREE separate outputs:
   
-  ## CANDIDATE-FACING SECTION
-  Include:
-  - Context and narrative (the scenario)
-  - Problem statement (what needs to be built)
-  - Constraints (intentionally incomplete - don't give away everything)
-  - Requirements (what they need to deliver)
-  - Deliverables (code, documentation, etc.)
+  1. candidate_prd: The CANDIDATE-FACING assignment document only. Include:
+     - Context and narrative (the scenario)
+     - Problem statement (what needs to be built)
+     - Constraints (the technical requirements)
+     - Requirements (what they need to deliver)
+     - Deliverables (code, documentation, etc.)
+     
+     DO NOT include evaluation rubric, scoring signals, or hidden traps in this section.
+     Format as a clear, professional PRD document using markdown.
   
-  ## INTERVIEWER-ONLY SECTION
-  Include:
-  - Evaluation rubric (the scoring dimensions)
-  - Scoring signals (what to look for in submissions)
-  - Hidden traps (edge cases and patches the candidate doesn't see)
-  - Strong vs weak submission examples
+  2. evaluation_rubric: The INTERVIEWER-ONLY evaluation rubric. Include:
+     - The scoring dimensions from the rubric
+     - What excellent/passing/failure looks like for each dimension
+     - Weights for each dimension
+     
+     Format as a clear rubric document.
   
-  Format as a clear, professional document. Use markdown formatting.
+  3. scoring_signals: The INTERVIEWER-ONLY scoring signals and hidden traps. Include:
+     - What to look for in submissions (automated checks)
+     - Hidden traps (edge cases from vulnerabilities that were patched)
+     - Common failure modes
+     - Strong vs weak submission examples
+     
+     Format as a clear evaluation guide.
+  
+  Keep each section completely separate. The candidate should NEVER see sections 2 and 3.

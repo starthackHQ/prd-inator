@@ -62,7 +62,8 @@ class EvaluationRubric(BaseModel):
     dimensions: List[ScoringDimension]
 
 
-class CritiqueResult(BaseModel):
-    """Result from self-critique."""
-    passed: bool
-    issues: List[str] = Field(description="Specific problems found")
+class FinalPRD(BaseModel):
+    """Final structured PRD output."""
+    candidate_prd: str = Field(description="Candidate-facing assignment document")
+    evaluation_rubric: str = Field(description="Interviewer-only evaluation rubric")
+    scoring_signals: str = Field(description="Interviewer-only scoring signals and hidden traps")

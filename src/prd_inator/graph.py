@@ -15,7 +15,6 @@ from prd_inator.node import (
     adversarial_agent,
     patch_node,
     evaluation_designer,
-    self_critique_loop,
     prd_generator
 )
 
@@ -39,13 +38,12 @@ def build_graph():
     workflow.add_node("adversarial_agent", adversarial_agent, retry_policy=llm_retry)
     workflow.add_node("patch_node", patch_node, retry_policy=llm_retry)
     workflow.add_node("evaluation_designer", evaluation_designer, retry_policy=llm_retry)
-    workflow.add_node("self_critique", self_critique_loop, retry_policy=llm_retry, ends=["constraint_injector", "prd_generator"])
     workflow.add_node("prd_generator", prd_generator, retry_policy=llm_retry)
     
-    # Use START node (not set_entry_point)
+    # Use START node
     workflow.add_edge(START, "employer_input")
     
-    # Linear flow: employer_input -> idea_divergence
+    # Linear flow
     workflow.add_edge("employer_input", "idea_divergence")
     workflow.add_edge("idea_divergence", "diversity_enforcer")
     workflow.add_edge("diversity_enforcer", "anti_ai_filter")
@@ -65,12 +63,9 @@ def build_graph():
     workflow.add_edge("scenario_transformer", "adversarial_agent")
     workflow.add_edge("adversarial_agent", "patch_node")
     workflow.add_edge("patch_node", "evaluation_designer")
-    workflow.add_edge("evaluation_designer", "self_critique")
     
-    # self_critique uses Command, no conditional edge needed
-    # Command will route to either constraint_injector or prd_generator
-    
-    # Final edge to END
+    # Go straight to PRD generator (no self-critique loop)
+    workflow.add_edge("evaluation_designer", "prd_generator")
     workflow.add_edge("prd_generator", END)
     
     # Compile and return
@@ -107,11 +102,13 @@ def run_pipeline(
         "scenario": "",
         "vulnerabilities": [],
         "evaluation_rubric": {},
-        "critique_iterations": 0,
-        "final_prd": ""
+        "candidate_prd": "",
+        "evaluation_rubric_text": "",
+        "scoring_signals": ""
     }
     
     result = graph.invoke(initial_state)
     return result
+
 
 
