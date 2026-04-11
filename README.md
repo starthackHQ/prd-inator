@@ -1,4 +1,5 @@
-# prd-inator
+<img width="2000" height="640" alt="prd-inator" src="https://github.com/user-attachments/assets/72a841bb-4809-4a1c-9fa4-5108d7fcc8d3" />
+
 
 An autonomous LangGraph pipeline that generates AI-resistant technical assignment PRDs. Give it a role, tech stack, and domain — it handles everything else.
 
