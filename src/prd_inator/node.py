@@ -31,71 +31,87 @@ def employer_input_node(state: GraphState) -> dict:
 def idea_divergence_engine(state: GraphState) -> dict:
     """Generate 15 diverse project ideas."""
     print("🔄 Node: idea_divergence_engine - Starting...")
-    prompt = get_prompt("idea_divergence").format(**state["employer_input"])
     
-    print(f"📝 Prompt length: {len(prompt)} chars")
-    config = get_llm_config().get_config("idea_divergence")
-    print(f"🤖 Using LLM: {config['provider']}/{config['model']}")
+    try:
+        prompt = get_prompt("idea_divergence").format(**state["employer_input"])
+        
+        print(f"📝 Prompt length: {len(prompt)} chars")
+        config = get_llm_config().get_config("idea_divergence")
+        print(f"🤖 Using LLM: {config['provider']}/{config['model']}")
+        
+        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.9)
+        structured_llm = llm.with_structured_output(IdeaList)
+        
+        print("📡 Calling LLM...")
+        result = structured_llm.invoke(prompt)
+        print(f"✅ Got {len(result.ideas)} ideas")
+        
+        return {"ideas": [idea.model_dump() for idea in result.ideas]}
     
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.9)
-    structured_llm = llm.with_structured_output(IdeaList)
-    
-    print("📡 Calling LLM...")
-    result = structured_llm.invoke(prompt)
-    print(f"✅ Got {len(result.ideas)} ideas")
-    
-    return {"ideas": [idea.model_dump() for idea in result.ideas]}
+    except Exception as e:
+        print(f"❌ Error in idea_divergence_engine: {e}")
+        raise  # Let RetryPolicy handle transient errors
 
 
 def diversity_enforcer(state: GraphState) -> dict:
     """Remove semantic duplicates from ideas."""
-    ideas_text = "\n\n".join([
-        f"{i+1}. {idea['title']}: {idea['description']}"
-        for i, idea in enumerate(state["ideas"])
-    ])
+    try:
+        ideas_text = "\n\n".join([
+            f"{i+1}. {idea['title']}: {idea['description']}"
+            for i, idea in enumerate(state["ideas"])
+        ])
+        
+        prompt = get_prompt("diversity_enforcer").format(ideas=ideas_text)
+        
+        config = get_llm_config().get_config("diversity_enforcer")
+        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.3)
+        structured_llm = llm.with_structured_output(IdeaList)
+        
+        result = structured_llm.invoke(prompt)
+        return {"filtered_ideas": [idea.model_dump() for idea in result.ideas]}
     
-    prompt = get_prompt("diversity_enforcer").format(ideas=ideas_text)
-    
-    config = get_llm_config().get_config("diversity_enforcer")
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.3)
-    structured_llm = llm.with_structured_output(IdeaList)
-    
-    result = structured_llm.invoke(prompt)
-    return {"filtered_ideas": [idea.model_dump() for idea in result.ideas]}
+    except Exception as e:
+        print(f"❌ Error in diversity_enforcer: {e}")
+        raise
 
 
 def anti_ai_filter(state: GraphState) -> dict:
     """Score ideas on AI-resistance and select the best."""
-    ideas_text = "\n\n".join([
-        f"{i+1}. {idea['title']}: {idea['description']}"
-        for i, idea in enumerate(state["filtered_ideas"])
-    ])
-    
-    prompt = get_prompt("anti_ai_filter").format(ideas=ideas_text)
-    
-    config = get_llm_config().get_config("anti_ai_filter")
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.2)
-    structured_llm = llm.with_structured_output(AntiAIScores)
-    
-    result = structured_llm.invoke(prompt)
-    scores = result.scores
-    
-    # Filter ideas with total_score <= 5 (lower is better)
-    passing_ideas = [s for s in scores if s.total_score <= 5]
-    
-    if len(passing_ideas) < 2:
-        # Not enough good ideas, will loop back
+    try:
+        ideas_text = "\n\n".join([
+            f"{i+1}. {idea['title']}: {idea['description']}"
+            for i, idea in enumerate(state["filtered_ideas"])
+        ])
+        
+        prompt = get_prompt("anti_ai_filter").format(ideas=ideas_text)
+        
+        config = get_llm_config().get_config("anti_ai_filter")
+        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.2)
+        structured_llm = llm.with_structured_output(AntiAIScores)
+        
+        result = structured_llm.invoke(prompt)
+        scores = result.scores
+        
+        # Filter ideas with total_score <= 5 (lower is better)
+        passing_ideas = [s for s in scores if s.total_score <= 5]
+        
+        if len(passing_ideas) < 2:
+            # Not enough good ideas, will loop back
+            return {"selected_idea": {}}
+        
+        # Select the best (lowest score)
+        best = min(passing_ideas, key=lambda x: x.total_score)
+        
+        # Find the original idea
+        for idea in state["filtered_ideas"]:
+            if idea["title"] == best.idea_title:
+                return {"selected_idea": idea}
+        
         return {"selected_idea": {}}
     
-    # Select the best (lowest score)
-    best = min(passing_ideas, key=lambda x: x.total_score)
-    
-    # Find the original idea
-    for idea in state["filtered_ideas"]:
-        if idea["title"] == best.idea_title:
-            return {"selected_idea": idea}
-    
-    return {"selected_idea": {}}
+    except Exception as e:
+        print(f"❌ Error in anti_ai_filter: {e}")
+        raise
 
 
 def should_regenerate_ideas(state: GraphState) -> Literal["regenerate", "continue"]:
@@ -246,23 +262,28 @@ def self_critique_loop(state: GraphState) -> Command[Literal["constraint_injecto
 
 def prd_generator(state: GraphState) -> dict:
     """Assemble final PRD document."""
-    constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
-    rubric_text = str(state["evaluation_rubric"])
-    vulnerabilities_text = "\n".join([
-        f"- {v['exploit_type']}: {v['description']}"
-        for v in state["vulnerabilities"]
-    ])
+    try:
+        constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
+        rubric_text = str(state["evaluation_rubric"])
+        vulnerabilities_text = "\n".join([
+            f"- {v['exploit_type']}: {v['description']}"
+            for v in state["vulnerabilities"]
+        ])
+        
+        prompt = get_prompt("prd_generator").format(
+            scenario=state["scenario"],
+            constraints=constraints_text,
+            rubric=rubric_text,
+            vulnerabilities=vulnerabilities_text
+        )
+        
+        config = get_llm_config().get_config("prd_generator")
+        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.4)
+        result = llm.invoke(prompt)
+        
+        return {"final_prd": result.content}
     
-    prompt = get_prompt("prd_generator").format(
-        scenario=state["scenario"],
-        constraints=constraints_text,
-        rubric=rubric_text,
-        vulnerabilities=vulnerabilities_text
-    )
-    
-    config = get_llm_config().get_config("prd_generator")
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.4)
-    result = llm.invoke(prompt)
-    
-    return {"final_prd": result.content}
+    except Exception as e:
+        print(f"❌ Error in prd_generator: {e}")
+        raise
 

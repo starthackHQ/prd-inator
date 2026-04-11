@@ -1,6 +1,7 @@
 """LangGraph pipeline orchestration."""
 from typing import Optional
 from langgraph.graph import StateGraph, START, END
+from langgraph.types import RetryPolicy
 from prd_inator.state import GraphState
 from prd_inator.config import LLMConfig, set_llm_config
 from prd_inator.node import (
@@ -22,21 +23,24 @@ from prd_inator.node import (
 def build_graph():
     """Build and compile the LangGraph pipeline."""
     
+    # Retry policy for LLM nodes (network failures, rate limits)
+    llm_retry = RetryPolicy(max_attempts=3, initial_interval=1.0)
+    
     # Initialize graph
     workflow = StateGraph(GraphState)
     
-    # Add all nodes
-    workflow.add_node("employer_input", employer_input_node)
-    workflow.add_node("idea_divergence", idea_divergence_engine)
-    workflow.add_node("diversity_enforcer", diversity_enforcer)
-    workflow.add_node("anti_ai_filter", anti_ai_filter)
-    workflow.add_node("constraint_injector", constraint_injector)
-    workflow.add_node("scenario_transformer", scenario_transformer)
-    workflow.add_node("adversarial_agent", adversarial_agent)
-    workflow.add_node("patch_node", patch_node)
-    workflow.add_node("evaluation_designer", evaluation_designer)
-    workflow.add_node("self_critique", self_critique_loop, ends=["constraint_injector", "prd_generator"])
-    workflow.add_node("prd_generator", prd_generator)
+    # Add nodes with retry policies for LLM calls
+    workflow.add_node("employer_input", employer_input_node)  # No LLM, no retry
+    workflow.add_node("idea_divergence", idea_divergence_engine, retry_policy=llm_retry)
+    workflow.add_node("diversity_enforcer", diversity_enforcer, retry_policy=llm_retry)
+    workflow.add_node("anti_ai_filter", anti_ai_filter, retry_policy=llm_retry)
+    workflow.add_node("constraint_injector", constraint_injector, retry_policy=llm_retry)
+    workflow.add_node("scenario_transformer", scenario_transformer, retry_policy=llm_retry)
+    workflow.add_node("adversarial_agent", adversarial_agent, retry_policy=llm_retry)
+    workflow.add_node("patch_node", patch_node, retry_policy=llm_retry)
+    workflow.add_node("evaluation_designer", evaluation_designer, retry_policy=llm_retry)
+    workflow.add_node("self_critique", self_critique_loop, retry_policy=llm_retry, ends=["constraint_injector", "prd_generator"])
+    workflow.add_node("prd_generator", prd_generator, retry_policy=llm_retry)
     
     # Use START node (not set_entry_point)
     workflow.add_edge(START, "employer_input")
@@ -109,4 +113,5 @@ def run_pipeline(
     
     result = graph.invoke(initial_state)
     return result
+
 
