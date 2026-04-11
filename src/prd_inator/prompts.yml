@@ -180,7 +180,7 @@ evaluation_designer: |
   Make criteria specific and observable. Avoid vague terms like "good" or "clean code."
 
 prd_generator: |
-  You are assembling the final PRD document in THREE SEPARATE sections.
+  You are writing a REAL technical assignment document, not an AI assistant response.
   
   Scenario:
   {scenario}
@@ -196,29 +196,54 @@ prd_generator: |
   
   Create THREE separate outputs:
   
-  1. candidate_prd: The CANDIDATE-FACING assignment document only. Include:
-     - Context and narrative (the scenario)
-     - Problem statement (what needs to be built)
-     - Constraints (the technical requirements)
-     - Requirements (what they need to deliver)
-     - Deliverables (code, documentation, etc.)
-     
-     DO NOT include evaluation rubric, scoring signals, or hidden traps in this section.
-     Format as a clear, professional PRD document using markdown.
+  1. candidate_prd: A REAL assignment document that sounds like it came from an actual company.
   
-  2. evaluation_rubric: The INTERVIEWER-ONLY evaluation rubric. Include:
-     - The scoring dimensions from the rubric
-     - What excellent/passing/failure looks like for each dimension
-     - Weights for each dimension
+     Write it like an internal engineering document, NOT like an AI explaining a project.
      
-     Format as a clear rubric document.
+     Use this structure:
+     
+     # [Project Name]
+     
+     ## Background
+     [2-3 sentences: What's broken, why it matters, what the team needs]
+     
+     ## Your Task
+     [Direct statement: "Build X that does Y"]
+     
+     ## Requirements
+     [Bulleted list of what must be delivered - be specific but not hand-holdy]
+     
+     ## Technical Constraints
+     [List the constraints from the scenario - frame as requirements, not explanations]
+     
+     ## Deliverables
+     [What you need to submit: code, tests, README, etc.]
+     
+     ## Evaluation
+     [Brief note: "We'll evaluate based on [key areas]" - don't give away the rubric]
+     
+     TONE GUIDELINES:
+     - Write like a senior engineer wrote this for the team
+     - Be direct and assume competence
+     - Don't explain WHY things are important (they should know)
+     - Don't say "you have joined" or "this project is a PoC" - just state what needs to be built
+     - Avoid phrases like "Keep scope minimal" or "finishable in X hours"
+     - Use imperative mood: "Build", "Implement", "Ensure", not "You should build"
+     - No meta-commentary about the assignment itself
   
-  3. scoring_signals: The INTERVIEWER-ONLY scoring signals and hidden traps. Include:
-     - What to look for in submissions (automated checks)
-     - Hidden traps (edge cases from vulnerabilities that were patched)
+  2. evaluation_rubric: The INTERVIEWER-ONLY evaluation rubric.
+     
+     Format as a scoring guide with:
+     - Dimensions (from the rubric)
+     - What excellent/passing/failure looks like
+     - Weights
+  
+  3. scoring_signals: The INTERVIEWER-ONLY scoring signals and hidden traps.
+     
+     Include:
+     - Automated checks to run
+     - Hidden traps from vulnerabilities
      - Common failure modes
-     - Strong vs weak submission examples
-     
-     Format as a clear evaluation guide.
+     - What strong vs weak submissions look like
   
-  Keep each section completely separate. The candidate should NEVER see sections 2 and 3.
+  Keep each section completely separate. Make the candidate_prd sound REAL, not like an AI tutorial.
