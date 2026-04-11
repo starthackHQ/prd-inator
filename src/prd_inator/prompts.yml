@@ -1,1 +1,234 @@
-# Prompt templates for pipeline nodes
+idea_divergence: |
+  You are an expert at designing technical take-home assignments that test real engineering judgment.
+  
+  Given the following employer requirements:
+  - Role: {role}
+  - Tech Stack: {tech_stack}
+  - Domain: {domain}
+  - Seniority: {seniority}
+  
+  Generate 15 fundamentally different project ideas. Each idea must be:
+  - A different system type (realtime, async, event-driven, offline-first, batch processing, etc.)
+  - Have different failure modes and edge cases
+  - Test different aspects of engineering judgment
+  
+  DO NOT create variations of the same idea with different names. Each must be genuinely distinct.
+  
+  For each idea, provide:
+  - title: A clear, specific project name
+  - description: 2-3 sentences explaining what needs to be built and why it's interesting
+
+diversity_enforcer: |
+  You are reviewing a list of project ideas to remove semantic duplicates.
+  
+  Ideas:
+  {ideas}
+  
+  Your task: Identify and remove ideas that are too similar to each other. Keep only the most distinct ideas.
+  Score each pair of ideas for similarity (0=completely different, 10=essentially the same).
+  Remove the weaker idea from each similar pair (similarity score >= 7).
+  
+  Return 5-8 maximally distinct ideas that cover different problem spaces.
+
+anti_ai_filter: |
+  You are a critical evaluator assessing whether project ideas can be easily solved by AI or templates.
+  
+  For each idea below, score on three axes (0-3 scale):
+  - gpt_solvable_score: Can GPT solve this in under 30 minutes? (0=very hard, 3=trivial)
+  - template_score: Is this a known template or boilerplate problem? (0=novel, 3=common boilerplate)
+  - googleable_score: Can you find a complete solution by Googling? (0=unique, 3=first result)
+  
+  Ideas to evaluate:
+  {ideas}
+  
+  For each idea, provide:
+  - idea_title
+  - gpt_solvable_score
+  - template_score
+  - googleable_score
+  - total_score (sum of above)
+  - reasoning (2-3 sentences explaining your scores)
+  
+  Be harsh. We want ideas that genuinely test thinking, not just implementation speed.
+
+constraint_injector: |
+  You are adding deliberate friction to make this assignment more realistic and challenging.
+  
+  Selected idea:
+  {idea}
+  
+  IMPORTANT: This is for a {seniority} role. Keep constraints reasonable and achievable in 3-5 hours of work.
+  
+  Add the following constraints:
+  1. incomplete_requirement: ONE thing intentionally vague that the candidate must ask about or make a decision on (keep it simple)
+  2. conflicting_goal: TWO requirements that create mild tension (e.g., "keep it simple" vs "make it extensible")
+  3. scaling_edge_case: ONE specific scenario where a naive solution might have issues
+  4. failure_condition: ONE failure mode the system should handle gracefully
+  
+  Make these constraints specific but not overwhelming. This should test thinking, not implementation marathon skills.
+
+scenario_transformer: |
+  You are converting an abstract project idea into a grounded, realistic narrative.
+  
+  Idea: {idea}
+  Constraints: {constraints}
+  Seniority: This is for an {seniority} position.
+  
+  Transform this into a compelling but ACHIEVABLE scenario using this structure:
+  "You've joined [company type] where [problem exists]. The current system [what's broken]. 
+  Your task is to [specific deliverable] that addresses [key challenge]."
+  
+  CRITICAL GUIDELINES:
+  - For entry-level/fresher roles: Keep scope to 3-5 hours of focused work. One clear deliverable.
+  - For mid-level: 4-8 hours, 2-3 deliverables.
+  - For senior: 6-12 hours, multiple components.
+  
+  Make it feel real but don't create a startup-in-a-weekend expectation. Focus on ONE core problem to solve well.
+  
+  Write 2-3 paragraphs maximum. Be specific about what success looks like.
+
+adversarial_agent: |
+  You are a lazy but clever candidate trying to shortcut this assignment using AI, hardcoding, or ignoring requirements.
+  
+  Scenario:
+  {scenario}
+  
+  Constraints:
+  {constraints}
+  
+  Your task: Find every possible way to cheat or take shortcuts. For each vulnerability, describe:
+  - exploit_type: What kind of shortcut (AI-generated, hardcoded, ignored requirement, etc.)
+  - description: Exactly how you would exploit this weakness
+  
+  Think like someone who wants to pass with minimal effort. What can you:
+  - Generate entirely with ChatGPT?
+  - Hardcode instead of making dynamic?
+  - Ignore completely and still look good?
+  - Solve with a template from GitHub?
+  
+  Be specific and creative. Find at least 5 vulnerabilities.
+
+patch_node: |
+  You are closing security holes in this assignment to prevent shortcuts.
+  
+  Current scenario:
+  {scenario}
+  
+  Current constraints:
+  {constraints}
+  
+  Vulnerabilities found:
+  {vulnerabilities}
+  
+  For each vulnerability, modify the scenario or constraints to close the gap. You can:
+  - Add observable requirements that hardcoded solutions cannot satisfy
+  - Introduce dynamic inputs that break template solutions
+  - Add evaluation signals that catch lazy AI-generated answers
+  - Make implicit requirements explicit
+  
+  Return:
+  - patched_scenario: Updated scenario text
+  - patched_constraints: Updated constraints list
+  
+  Keep the core problem the same, but make shortcuts impossible.
+
+evaluation_designer: |
+  You are designing a scoring rubric for this technical assignment.
+  
+  Scenario:
+  {scenario}
+  
+  Constraints:
+  {constraints}
+  
+  Create 5 scoring dimensions. For each dimension provide:
+  - name: Clear dimension name
+  - weight: Importance (0-1, must sum to 1.0 across all dimensions)
+  - excellent: What a 4-5 score looks like (specific behaviors/outputs)
+  - passing: What a 2-3 score looks like
+  - failure: What a 0-1 score looks like
+  
+  Recommended dimensions:
+  - Handles ambiguity (how they deal with incomplete requirements)
+  - Tradeoff articulation (how they explain decisions)
+  - Edge case coverage (what scenarios they consider)
+  - System design clarity (how well they structure the solution)
+  - Communication quality (how they document and explain)
+  
+  Make criteria specific and observable. Avoid vague terms like "good" or "clean code."
+
+self_critique: |
+  You are reviewing this assignment to ensure it's appropriate and genuinely tests engineering judgment.
+  
+  Seniority level: {seniority}
+  
+  Scenario:
+  {scenario}
+  
+  Constraints:
+  {constraints}
+  
+  Rubric:
+  {rubric}
+  
+  Answer these questions based on the seniority level:
+  
+  For Entry-level/Fresher (3-5 hours max):
+  1. Can this be completed in 3-5 focused hours?
+  2. Does it test ONE core skill well (not everything at once)?
+  3. Is the scope clear enough that a junior won't get lost?
+  
+  For Mid-level (4-8 hours):
+  1. Can this be completed in 4-8 hours?
+  2. Does it test 2-3 complementary skills?
+  3. Are the tradeoffs realistic for this level?
+  
+  For Senior (6-12 hours):
+  1. Can this be completed in 6-12 hours?
+  2. Does it test system thinking and tradeoff articulation?
+  3. Is there enough ambiguity to see how they handle it?
+  
+  General checks (all levels):
+  - Can this still be solved via a template or boilerplate? (should be NO)
+  - Is the rubric specific enough to differentiate candidates? (should be YES)
+  - Is this testing thinking or just implementation speed? (should be THINKING)
+  
+  Return:
+  - passed: true ONLY if the assignment is appropriate for the seniority level AND passes all checks
+  - issues: List of specific problems (empty if passed)
+  
+  Be STRICT about scope. If it's too complex for the level, mark as failed with specific issues.
+
+prd_generator: |
+  You are assembling the final PRD document.
+  
+  Scenario:
+  {scenario}
+  
+  Constraints:
+  {constraints}
+  
+  Rubric:
+  {rubric}
+  
+  Vulnerabilities (for reference):
+  {vulnerabilities}
+  
+  Create a comprehensive PRD with two sections:
+  
+  ## CANDIDATE-FACING SECTION
+  Include:
+  - Context and narrative (the scenario)
+  - Problem statement (what needs to be built)
+  - Constraints (intentionally incomplete - don't give away everything)
+  - Requirements (what they need to deliver)
+  - Deliverables (code, documentation, etc.)
+  
+  ## INTERVIEWER-ONLY SECTION
+  Include:
+  - Evaluation rubric (the scoring dimensions)
+  - Scoring signals (what to look for in submissions)
+  - Hidden traps (edge cases and patches the candidate doesn't see)
+  - Strong vs weak submission examples
+  
+  Format as a clear, professional document. Use markdown formatting.
