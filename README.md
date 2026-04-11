@@ -1,6 +1,5 @@
 <img width="2000" height="640" alt="prd-inator" src="https://github.com/user-attachments/assets/72a841bb-4809-4a1c-9fa4-5108d7fcc8d3" />
 
-
 An autonomous LangGraph pipeline that generates AI-resistant technical assignment PRDs. Give it a role, tech stack, and domain — it handles everything else.
 
 ## What it does
@@ -24,6 +23,30 @@ cp .env.example .env
 
 ## Usage
 
+### As a Library
+
+```python
+from prd_inator import generate_prd
+
+result = generate_prd(
+    role="Backend Engineer",
+    tech_stack="Python, FastAPI, PostgreSQL",
+    domain="Fintech",
+    seniority="Mid-level"
+)
+
+# Access outputs
+print(result.candidate_prd)        # Assignment for candidate
+print(result.evaluation_rubric)    # Scoring dimensions
+print(result.scoring_signals)      # Hidden traps and signals
+
+# Save to files
+with open("assignment.md", "w") as f:
+    f.write(result.candidate_prd)
+```
+
+### As a CLI
+
 ```bash
 uv run main.py
 ```
@@ -31,11 +54,14 @@ uv run main.py
 ## LLM Configuration
 
 ### Default Behavior
+
 By default, the pipeline uses environment variables:
+
 - `LLM_PROVIDER` (default: `openai`)
 - `LLM_MODEL` (default: `gpt-4o`)
 
 ### Per-Node Configuration via Environment Variables
+
 You can configure different models for specific nodes using env vars:
 
 ```bash
@@ -49,6 +75,7 @@ ADVERSARIAL_AGENT_MODEL=claude-3-5-sonnet-20241022
 ```
 
 ### Programmatic Configuration
+
 When using as a library, you can configure LLMs programmatically:
 
 ```python
@@ -78,6 +105,7 @@ result = run_pipeline(employer_input, llm_config=config)
 ```
 
 ### Available Nodes for Configuration
+
 - `idea_divergence`
 - `diversity_enforcer`
 - `anti_ai_filter`
