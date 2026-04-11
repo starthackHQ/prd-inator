@@ -60,7 +60,10 @@ def diversity_enforcer(state: GraphState) -> dict:
             for i, idea in enumerate(state["ideas"])
         ])
         
-        prompt = get_prompt("diversity_enforcer").format(ideas=ideas_text)
+        prompt = get_prompt("diversity_enforcer").format(
+            ideas=ideas_text,
+            **state["employer_input"]
+        )
         
         config = get_llm_config().get_config("diversity_enforcer")
         logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
@@ -88,7 +91,10 @@ def anti_ai_filter(state: GraphState) -> dict:
             for i, idea in enumerate(state["filtered_ideas"])
         ])
         
-        prompt = get_prompt("anti_ai_filter").format(ideas=ideas_text)
+        prompt = get_prompt("anti_ai_filter").format(
+            ideas=ideas_text,
+            **state["employer_input"]
+        )
         
         config = get_llm_config().get_config("anti_ai_filter")
         logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
@@ -167,12 +173,11 @@ def scenario_transformer(state: GraphState) -> dict:
     
     idea_text = f"{state['selected_idea']['title']}: {state['selected_idea']['description']}"
     constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
-    seniority = state["employer_input"].get("seniority", "mid-level")
     
     prompt = get_prompt("scenario_transformer").format(
         idea=idea_text,
         constraints=constraints_text,
-        seniority=seniority
+        **state["employer_input"]
     )
     
     config = get_llm_config().get_config("scenario_transformer")

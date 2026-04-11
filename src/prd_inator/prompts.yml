@@ -41,23 +41,34 @@ idea_divergence: |
   Focus on ideas that make candidates think about system design, not just implementation speed.
 
 diversity_enforcer: |
-  You are reviewing a list of project ideas to remove semantic duplicates.
+  You are reviewing project ideas to keep only the most distinct ones.
+  
+  Context: These are for a {seniority} {role} position working with {tech_stack} in {domain}.
   
   Ideas:
   {ideas}
   
-  Your task: Identify and remove ideas that are too similar to each other. Keep only the most distinct ideas.
-  Score each pair of ideas for similarity (0=completely different, 10=essentially the same).
-  Remove the weaker idea from each similar pair (similarity score >= 7).
+  Your task:
+  1. Remove semantic duplicates (similarity score >= 7 out of 10)
+  2. Prioritize ideas that best match the role and tech stack
+  3. Keep ideas that test different aspects of {role} skills
   
-  Return 5-8 maximally distinct ideas that cover different problem spaces.
+  Return 5-8 maximally distinct ideas that:
+  - Cover different system types and failure modes
+  - Are appropriate for {seniority} level
+  - Actually use the specified tech stack ({tech_stack})
 
 anti_ai_filter: |
-  You are a critical evaluator assessing whether project ideas can be easily solved by AI or templates.
+  You are evaluating whether project ideas are AI-resistant for a {seniority} {role} position.
+  
+  Context:
+  - Role: {role}
+  - Tech Stack: {tech_stack}
+  - Seniority: {seniority}
   
   For each idea below, score on three axes (0-3 scale):
-  - gpt_solvable_score: Can GPT solve this in under 30 minutes? (0=very hard, 3=trivial)
-  - template_score: Is this a known template or boilerplate problem? (0=novel, 3=common boilerplate)
+  - gpt_solvable_score: Can GPT/Claude solve this in under 30 minutes? (0=very hard, 3=trivial)
+  - template_score: Is this a known template or boilerplate? (0=novel, 3=common boilerplate)
   - googleable_score: Can you find a complete solution by Googling? (0=unique, 3=first result)
   
   Ideas to evaluate:
@@ -68,10 +79,11 @@ anti_ai_filter: |
   - gpt_solvable_score
   - template_score
   - googleable_score
-  - total_score (sum of above)
-  - reasoning (2-3 sentences explaining your scores)
+  - total_score (sum of above - lower is better)
+  - reasoning (2-3 sentences explaining scores, considering the seniority level)
   
-  Be harsh. We want ideas that genuinely test thinking, not just implementation speed.
+  Be HARSH. For {seniority} level, we want ideas that test real thinking and {role} skills, not just implementation speed.
+  Consider: Would this actually differentiate candidates at this level?
 
 constraint_injector: |
   You are adding deliberate friction to make this assignment more realistic and challenging.
@@ -90,24 +102,38 @@ constraint_injector: |
   Make these constraints specific but not overwhelming. This should test thinking, not implementation marathon skills.
 
 scenario_transformer: |
-  You are converting an abstract project idea into a grounded, realistic narrative.
+  You are converting an abstract project idea into a grounded, realistic narrative for a {seniority} {role}.
   
   Idea: {idea}
   Constraints: {constraints}
-  Seniority: This is for an {seniority} position.
   
-  Transform this into a compelling but ACHIEVABLE scenario using this structure:
-  "You've joined [company type] where [problem exists]. The current system [what's broken]. 
-  Your task is to [specific deliverable] that addresses [key challenge]."
+  Context:
+  - Role: {role}
+  - Tech Stack: {tech_stack}
+  - Domain: {domain}
+  - Seniority: {seniority}
   
-  CRITICAL GUIDELINES:
-  - For entry-level/fresher roles: Keep scope to 3-5 hours of focused work. One clear deliverable.
-  - For mid-level: 4-8 hours, 2-3 deliverables.
-  - For senior: 6-12 hours, multiple components.
+  Transform this into a compelling but ACHIEVABLE scenario.
   
-  Make it feel real but don't create a startup-in-a-weekend expectation. Focus on ONE core problem to solve well.
+  SCOPE GUIDELINES by seniority:
+  - Entry-level/Fresher: 3-5 hours, ONE clear deliverable, focus on fundamentals
+  - Mid-level: 4-8 hours, 2-3 deliverables, test tradeoff thinking
+  - Senior: 6-12 hours, multiple components, test system design
   
-  Write 2-3 paragraphs maximum. Be specific about what success looks like.
+  STRUCTURE:
+  Write 2-3 paragraphs that establish:
+  1. The company context and why this problem exists
+  2. What's currently broken or missing
+  3. What they need to build (be specific about the deliverable)
+  
+  TONE:
+  - Write like you're briefing a new team member
+  - Be specific about the tech stack they'll use: {tech_stack}
+  - Mention the domain context: {domain}
+  - Don't over-explain or hand-hold
+  - Focus on ONE core problem to solve well
+  
+  Make it feel real but achievable for a {seniority} {role}.
 
 adversarial_agent: |
   You are a lazy but clever candidate trying to shortcut this assignment using AI, hardcoding, or ignoring requirements.
