@@ -804,6 +804,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "langchain" },
+    { name = "langchain-openai" },
     { name = "langgraph" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -836,6 +837,7 @@ requires-dist = [
     { name = "langchain-anthropic", marker = "extra == 'anthropic'", specifier = ">=0.1.0" },
     { name = "langchain-google-genai", marker = "extra == 'all'", specifier = ">=4.2.1" },
     { name = "langchain-google-genai", marker = "extra == 'google'", specifier = ">=4.2.1" },
+    { name = "langchain-openai", specifier = ">=1.1.12" },
     { name = "langchain-openai", marker = "extra == 'all'", specifier = ">=1.1.12" },
     { name = "langchain-openai", marker = "extra == 'cli'", specifier = ">=1.1.12" },
     { name = "langchain-openai", marker = "extra == 'openai'", specifier = ">=1.1.12" },

@@ -16,7 +16,6 @@ from prd_inator.node import (
     scenario_transformer,
     adversarial_agent,
     patch_node,
-    evaluation_designer,
     prd_generator
 )
 
@@ -31,7 +30,7 @@ def build_graph():
     workflow = StateGraph(GraphState)
     
     # Add nodes with retry policies for LLM calls
-    workflow.add_node("employer_input", employer_input_node)  # No LLM, no retry
+    workflow.add_node("employer_input", employer_input_node)
     workflow.add_node("idea_divergence", idea_divergence_engine, retry_policy=llm_retry)
     workflow.add_node("diversity_enforcer", diversity_enforcer, retry_policy=llm_retry)
     workflow.add_node("anti_ai_filter", anti_ai_filter, retry_policy=llm_retry)
@@ -39,18 +38,13 @@ def build_graph():
     workflow.add_node("scenario_transformer", scenario_transformer, retry_policy=llm_retry)
     workflow.add_node("adversarial_agent", adversarial_agent, retry_policy=llm_retry)
     workflow.add_node("patch_node", patch_node, retry_policy=llm_retry)
-    workflow.add_node("evaluation_designer", evaluation_designer, retry_policy=llm_retry)
     workflow.add_node("prd_generator", prd_generator, retry_policy=llm_retry)
     
-    # Use START node
     workflow.add_edge(START, "employer_input")
-    
-    # Linear flow
     workflow.add_edge("employer_input", "idea_divergence")
     workflow.add_edge("idea_divergence", "diversity_enforcer")
     workflow.add_edge("diversity_enforcer", "anti_ai_filter")
     
-    # Conditional edge: Loop 1 (anti_ai_filter -> idea_divergence or continue)
     workflow.add_conditional_edges(
         "anti_ai_filter",
         should_regenerate_ideas,
@@ -60,17 +54,12 @@ def build_graph():
         }
     )
     
-    # Linear flow through constraint injection and scenario building
     workflow.add_edge("constraint_injector", "scenario_transformer")
     workflow.add_edge("scenario_transformer", "adversarial_agent")
     workflow.add_edge("adversarial_agent", "patch_node")
-    workflow.add_edge("patch_node", "evaluation_designer")
-    
-    # Go straight to PRD generator (no self-critique loop)
-    workflow.add_edge("evaluation_designer", "prd_generator")
+    workflow.add_edge("patch_node", "prd_generator")
     workflow.add_edge("prd_generator", END)
     
-    # Compile and return
     return workflow.compile()
 
 
@@ -85,12 +74,11 @@ def run_pipeline(
     Args:
         employer_input: Dict with role, tech_stack, domain, seniority
         llm: Single LLM instance to use for all nodes
-        node_llms: Per-node LLM overrides, e.g., {"idea_divergence": model1, "anti_ai_filter": model2}
+        node_llms: Per-node LLM overrides
         
     Returns:
         Final state dict with generated PRD
     """
-    # Set LLMs
     set_llms(default_llm=llm, node_llms=node_llms)
     
     graph = build_graph()
@@ -104,10 +92,7 @@ def run_pipeline(
         "constraints": [],
         "scenario": "",
         "vulnerabilities": [],
-        "evaluation_rubric": {},
-        "candidate_prd": "",
-        "evaluation_rubric_text": "",
-        "scoring_signals": ""
+        "candidate_prd": ""
     }
     
     result = graph.invoke(initial_state)

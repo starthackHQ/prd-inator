@@ -7,38 +7,40 @@ idea_divergence: |
   - Domain: {domain}
   - Seniority: {seniority}
   
-  APPROACH: Generate ideas by recombining concepts from different domains.
+  APPROACH: Generate ideas by borrowing SPECIFIC MECHANISMS from unrelated domains.
   
-  Think about the core domain ({domain}) and map its problems to mechanisms from:
-  - Distributed Systems (consensus, CRDTs, eventual consistency, conflict resolution)
-  - Gaming (multiplayer sync, matchmaking, leaderboards, real-time state)
-  - Biology (swarm behavior, immune systems, evolution, adaptation)
-  - Economics (markets, auctions, incentives, resource allocation)
-  - Collaboration Tools (presence, co-editing, version control, branching)
+  For each idea, pick ONE mechanism from a different domain and apply it to {domain}:
   
-  Generate 15 fundamentally different project ideas by combining:
-  - A core problem from {domain}
-  - A mechanism from another domain
-  - A specific system architecture pattern
+  MECHANISM EXAMPLES (pick different ones for each idea):
+  - Gaming: ELO rating decay, fog of war, combo multipliers, loot drop probability curves
+  - Biology: Pheromone trails (ant colonies), antibody memory, predator-prey dynamics, cell mitosis
+  - Economics: Dutch auctions, surge pricing, liquidity pools, credit scoring
+  - Collaboration: Operational transforms, three-way merge, presence heartbeats, cursor broadcasting
+  - Media: Content fingerprinting, collaborative filtering, A/B test allocation, feed ranking signals
+  - Logistics: Traveling salesman heuristics, bin packing, load balancing algorithms, circuit breakers
+  - Social: Trust scores, reputation decay, viral coefficient tracking, moderation queues
+  - Physics: Rate limiting (token bucket), backpressure, exponential backoff, jitter
   
-  Each idea must be:
-  - A different system type (realtime, async, event-driven, offline-first, CRDT-based, queue-based, etc.)
-  - Derived from a unique cross-domain combination
-  - Introduce real engineering tradeoffs (not just CRUD)
-  - Test different failure modes and edge cases
-  - Appropriate for {seniority} level
+  Generate 15 ideas where EACH uses a DIFFERENT mechanism from the list above.
+  
+  Each idea must:
+  - Use a SPECIFIC named mechanism (not just "distributed systems" or "real-time sync")
+  - Be a different system type (API, CLI, background worker, stream processor, scraper, etc.)
+  - Test different engineering skills (data modeling, API design, async processing, error handling, etc.)
+  - Be appropriate for {seniority} level
+  - Actually use {tech_stack}
   
   AVOID:
   - Generic CRUD apps
-  - Simple form-to-database flows
-  - Variations of the same idea with different names
-  - Shallow analogies without mechanism depth
+  - Vague mechanisms like "consensus" or "synchronization"
+  - Repeating the same mechanism with different names
+  - Ideas that don't clearly use the borrowed mechanism
   
   For each idea, provide:
   - title: Clear, specific project name
-  - description: 2-3 sentences explaining what needs to be built, the cross-domain mechanism used, and why it's interesting
+  - description: 2-3 sentences explaining the {domain} problem, which SPECIFIC mechanism you're borrowing, and how it applies
   
-  Focus on ideas that make candidates think about system design, not just implementation speed.
+  Make each mechanism choice explicit and different.
 
 diversity_enforcer: |
   You are reviewing project ideas to keep only the most distinct ones.
@@ -102,7 +104,7 @@ constraint_injector: |
   Make these constraints specific but not overwhelming. This should test thinking, not implementation marathon skills.
 
 scenario_transformer: |
-  You are converting an abstract project idea into a grounded, realistic narrative for a {seniority} {role}.
+  You are converting an abstract project idea into a complete, realistic technical assignment.
   
   Idea: {idea}
   Constraints: {constraints}
@@ -113,163 +115,118 @@ scenario_transformer: |
   - Domain: {domain}
   - Seniority: {seniority}
   
-  Transform this into a compelling but ACHIEVABLE scenario.
+  Your goal: Create a compelling, achievable assignment that tests real engineering skills.
   
-  SCOPE GUIDELINES by seniority:
-  - Entry-level/Fresher: 3-5 hours, ONE clear deliverable, focus on fundamentals
-  - Mid-level: 4-8 hours, 2-3 deliverables, test tradeoff thinking
-  - Senior: 6-12 hours, multiple components, test system design
+  THINK ABOUT:
+  - What's the actual business problem someone would face in {domain}?
+  - What makes this interesting and non-trivial for a {seniority} {role}?
+  - How do the constraints create realistic friction?
+  - What tradeoffs will candidates need to consider?
   
-  STRUCTURE:
-  Write 2-3 paragraphs that establish:
-  1. The company context and why this problem exists
-  2. What's currently broken or missing
-  3. What they need to build (be specific about the deliverable)
+  Generate a structured scenario with these components:
   
-  TONE:
-  - Write like you're briefing a new team member
-  - Be specific about the tech stack they'll use: {tech_stack}
-  - Mention the domain context: {domain}
-  - Don't over-explain or hand-hold
-  - Focus on ONE core problem to solve well
+  - objective_context: 2-3 sentences painting the business problem and what needs to be built (make it feel real)
+  - product_value: 3-4 benefit bullets explaining why this matters to the business
+  - core_requirements: 3-5 requirements that test different skills:
+    * summary: One-line requirement (what to build)
+    * details: 2-3 implementation details (key behaviors, edge cases, or constraints)
+  - functional_components: 2-3 components with clear interfaces:
+    * component_name: What this component does
+    * interface: API endpoint, CLI command, or function signature
+    * details: 3-5 bullets covering inputs, outputs, validations, and behavior
+  - non_functional_requirements (keep these realistic and testable):
+    * performance: 1-2 specific metrics or targets
+    * resilience: 1-2 failure scenarios to handle
+    * security: 1-2 security considerations
+    * developer_experience: 1-2 documentation/setup requirements
+  - user_flow: 5-6 steps showing how the system works end-to-end
   
-  Make it feel real but achievable for a {seniority} {role}.
+  SCOPE GUIDELINES:
+  - Entry-level/Fresher: 3-5 hours, focus on fundamentals and clear requirements
+  - Mid-level: 4-8 hours, test tradeoff thinking and system design
+  - Senior: 6-12 hours, test architecture decisions and edge case handling
+  
+  IMPORTANT:
+  - Incorporate the constraints naturally (don't just list them)
+  - Use the exact tech stack: {tech_stack}
+  - Make requirements specific enough to be testable
+  - Avoid generic boilerplate - make it feel like a real company problem
+  - Balance completeness with achievability for {seniority} level
 
 adversarial_agent: |
   You are a lazy but clever candidate trying to shortcut this assignment using AI, hardcoding, or ignoring requirements.
   
-  Scenario:
+  Structured scenario:
   {scenario}
   
-  Constraints:
-  {constraints}
+  Your task: Find every possible way to cheat or take shortcuts.
   
-  Your task: Find every possible way to cheat or take shortcuts. For each vulnerability, describe:
-  - exploit_type: What kind of shortcut (AI-generated, hardcoded, ignored requirement, etc.)
-  - description: Exactly how you would exploit this weakness
+  THINK LIKE A CHEATER:
+  - What can I generate entirely with ChatGPT/Claude and just paste in?
+  - What can I hardcode instead of making dynamic?
+  - What requirements can I ignore and still look good?
+  - What GitHub template or tutorial can I copy?
+  - What edge cases can I skip without anyone noticing?
+  - What can I fake with mock data instead of implementing properly?
   
-  Think like someone who wants to pass with minimal effort. What can you:
-  - Generate entirely with ChatGPT?
-  - Hardcode instead of making dynamic?
-  - Ignore completely and still look good?
-  - Solve with a template from GitHub?
+  For each vulnerability you find, describe:
+  - exploit_type: Category (AI-generated, hardcoded, ignored requirement, template copy, etc.)
+  - description: Exactly how you would exploit this weakness (be specific about what you'd do)
   
-  Be specific and creative. Find at least 5 vulnerabilities.
+  Be creative and ruthless. Find at least 5 different vulnerabilities.
+  Focus on shortcuts that would be hard to detect in a code review.
 
 patch_node: |
-  You are closing security holes in this assignment to prevent shortcuts.
+  You are hardening an assignment to prevent shortcuts and cheating.
   
-  Current scenario:
+  Current structured scenario:
   {scenario}
   
-  Current constraints:
-  {constraints}
-  
-  Vulnerabilities found:
+  Vulnerabilities found by adversarial testing:
   {vulnerabilities}
   
-  For each vulnerability, modify the scenario or constraints to close the gap. You can:
-  - Add observable requirements that hardcoded solutions cannot satisfy
-  - Introduce dynamic inputs that break template solutions
-  - Add evaluation signals that catch lazy AI-generated answers
-  - Make implicit requirements explicit
+  Your goal: Close each vulnerability while keeping the assignment achievable.
   
-  Return:
-  - patched_scenario: Updated scenario text
-  - patched_constraints: Updated constraints list
+  PATCHING STRATEGIES:
+  - For AI-generation vulnerabilities: Add requirements that need domain knowledge or specific constraints
+  - For hardcoding vulnerabilities: Require dynamic inputs, configuration, or variable behavior
+  - For ignored requirements: Make them observable and testable
+  - For template copying: Add unique constraints or combinations that don't exist in tutorials
+  - For edge case skipping: Make edge cases explicit requirements with test scenarios
   
-  Keep the core problem the same, but make shortcuts impossible.
-
-evaluation_designer: |
-  You are designing a scoring rubric for this technical assignment.
+  Return the UPDATED structured scenario with the same fields:
+  - objective_context (update if needed to clarify expectations)
+  - product_value (keep unless patching changes the value prop)
+  - core_requirements (add specificity, observability, or new requirements)
+  - functional_components (add validation requirements, dynamic inputs, or test scenarios)
+  - non_functional_requirements (add measurable criteria or failure scenarios)
+  - user_flow (update if patching changes the flow)
   
-  Scenario:
-  {scenario}
-  
-  Constraints:
-  {constraints}
-  
-  Create 5 scoring dimensions. For each dimension provide:
-  - name: Clear dimension name
-  - weight: Importance (0-1, must sum to 1.0 across all dimensions)
-  - excellent: What a 4-5 score looks like (specific behaviors/outputs)
-  - passing: What a 2-3 score looks like
-  - failure: What a 0-1 score looks like
-  
-  Recommended dimensions:
-  - Handles ambiguity (how they deal with incomplete requirements)
-  - Tradeoff articulation (how they explain decisions)
-  - Edge case coverage (what scenarios they consider)
-  - System design clarity (how well they structure the solution)
-  - Communication quality (how they document and explain)
-  
-  Make criteria specific and observable. Avoid vague terms like "good" or "clean code."
+  IMPORTANT:
+  - Keep the core problem the same
+  - Don't make it unreasonably hard - just harder to shortcut
+  - Make patches specific and testable
+  - Maintain the scope appropriate for the seniority level
 
 prd_generator: |
-  You are writing a REAL technical assignment document, not an AI assistant response.
+  You are assembling the final PRD from a structured, patched scenario.
   
-  Scenario:
+  Structured scenario (already generated and hardened against shortcuts):
   {scenario}
   
-  Constraints:
-  {constraints}
+  Tech stack from employer:
+  {tech_stack}
   
-  Rubric:
-  {rubric}
+  Your job:
+  1. Parse tech_stack string into 4-6 individual technologies (e.g., "Python, FastAPI, PostgreSQL" → ["Python 3.10+", "FastAPI", "PostgreSQL", "pytest"])
+  2. Combine the scenario components with the parsed tech stack
+  3. Ensure all components are present and well-formed
   
-  Vulnerabilities (for reference):
-  {vulnerabilities}
+  Quality checks:
+  - objective_context should paint a clear business problem
+  - core_requirements should be specific and testable
+  - functional_components should have clear interfaces
+  - non_functional_requirements should be measurable
+  - user_flow should be complete end-to-end
   
-  Create THREE separate outputs:
-  
-  1. candidate_prd: A REAL assignment document that sounds like it came from an actual company.
-  
-     Write it like an internal engineering document, NOT like an AI explaining a project.
-     
-     Use this structure:
-     
-     # [Project Name]
-     
-     ## Background
-     [2-3 sentences: What's broken, why it matters, what the team needs]
-     
-     ## Your Task
-     [Direct statement: "Build X that does Y"]
-     
-     ## Requirements
-     [Bulleted list of what must be delivered - be specific but not hand-holdy]
-     
-     ## Technical Constraints
-     [List the constraints from the scenario - frame as requirements, not explanations]
-     
-     ## Deliverables
-     [What you need to submit: code, tests, README, etc.]
-     
-     ## Evaluation
-     [Brief note: "We'll evaluate based on [key areas]" - don't give away the rubric]
-     
-     TONE GUIDELINES:
-     - Write like a senior engineer wrote this for the team
-     - Be direct and assume competence
-     - Don't explain WHY things are important (they should know)
-     - Don't say "you have joined" or "this project is a PoC" - just state what needs to be built
-     - Avoid phrases like "Keep scope minimal" or "finishable in X hours"
-     - Use imperative mood: "Build", "Implement", "Ensure", not "You should build"
-     - No meta-commentary about the assignment itself
-  
-  2. evaluation_rubric: The INTERVIEWER-ONLY evaluation rubric.
-     
-     Format as a scoring guide with:
-     - Dimensions (from the rubric)
-     - What excellent/passing/failure looks like
-     - Weights
-  
-  3. scoring_signals: The INTERVIEWER-ONLY scoring signals and hidden traps.
-     
-     Include:
-     - Automated checks to run
-     - Hidden traps from vulnerabilities
-     - Common failure modes
-     - What strong vs weak submissions look like
-  
-  Keep each section completely separate. Make the candidate_prd sound REAL, not like an AI tutorial.
+  Return the complete PRD structure ready for formatting.

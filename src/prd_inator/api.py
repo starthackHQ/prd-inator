@@ -16,8 +16,6 @@ Simple usage:
     ... )
     >>> 
     >>> print(result.candidate_prd)
-    >>> print(result.evaluation_rubric)
-    >>> print(result.scoring_signals)
 
 Advanced usage with per-node LLMs:
     >>> from langchain_openai import ChatOpenAI
@@ -48,13 +46,9 @@ class PRDResult(NamedTuple):
     
     Attributes:
         candidate_prd: The assignment document for candidates (markdown format)
-        evaluation_rubric: The scoring rubric for interviewers (markdown format)
-        scoring_signals: Hidden traps and evaluation signals for interviewers (markdown format)
         raw_state: Complete pipeline state (for debugging/advanced usage)
     """
     candidate_prd: str
-    evaluation_rubric: str
-    scoring_signals: str
     raw_state: dict
 
 
@@ -69,14 +63,14 @@ def generate_prd(
     """
     Generate an AI-resistant technical assignment PRD.
     
-    This function runs a 9-node LangGraph pipeline that:
+    This function runs an 8-node LangGraph pipeline that:
     1. Generates diverse project ideas through cross-domain recombination
     2. Filters out AI-solvable ideas
     3. Injects realistic constraints
-    4. Red-teams for vulnerabilities
-    5. Patches security holes
-    6. Generates evaluation rubric
-    7. Produces three separate documents
+    4. Transforms into structured scenario with all PRD components
+    5. Red-teams for vulnerabilities
+    6. Patches security holes
+    7. Assembles final PRD document
     
     Args:
         role: Job role (e.g., "Backend Engineer", "Full-stack Developer")
@@ -89,8 +83,6 @@ def generate_prd(
     Returns:
         PRDResult: Named tuple containing:
             - candidate_prd: Assignment document (what candidates see)
-            - evaluation_rubric: Scoring dimensions (interviewer-only)
-            - scoring_signals: Hidden traps and signals (interviewer-only)
             - raw_state: Complete pipeline state
     
     Raises:
@@ -110,12 +102,9 @@ def generate_prd(
         ...     llm=llm
         ... )
         >>> 
-        >>> # Save to files
+        >>> # Save to file
         >>> with open("assignment.md", "w") as f:
         ...     f.write(result.candidate_prd)
-        >>> 
-        >>> with open("rubric.md", "w") as f:
-        ...     f.write(result.evaluation_rubric)
     
     Note:
         The pipeline typically takes 2-5 minutes to complete, depending on:
@@ -141,8 +130,6 @@ def generate_prd(
     # Return structured result
     return PRDResult(
         candidate_prd=result["candidate_prd"],
-        evaluation_rubric=result["evaluation_rubric_text"],
-        scoring_signals=result["scoring_signals"],
         raw_state=result
     )
 

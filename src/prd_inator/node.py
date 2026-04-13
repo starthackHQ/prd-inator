@@ -155,8 +155,10 @@ def constraint_injector(state: GraphState) -> dict:
 
 
 def scenario_transformer(state: GraphState) -> dict:
-    """Convert idea into grounded narrative scenario."""
+    """Convert idea into structured scenario with all PRD components."""
     logger.debug("Node: scenario_transformer - Starting...")
+    
+    from prd_inator.schema import StructuredScenario
     
     idea_text = f"{state['selected_idea']['title']}: {state['selected_idea']['description']}"
     constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
@@ -168,10 +170,12 @@ def scenario_transformer(state: GraphState) -> dict:
     )
     
     llm = get_llm("scenario_transformer")
-    result = llm.invoke(prompt)
+    structured_llm = llm.with_structured_output(StructuredScenario)
     
-    logger.debug("Scenario transformed")
-    return {"scenario": result.content}
+    result = structured_llm.invoke(prompt)
+    logger.debug("Structured scenario created")
+    
+    return {"scenario": result.model_dump()}
 
 
 def adversarial_agent(state: GraphState) -> dict:
@@ -195,38 +199,30 @@ def adversarial_agent(state: GraphState) -> dict:
 
 
 def patch_node(state: GraphState) -> dict:
-    """Patch vulnerabilities in scenario and constraints."""
+    """Patch vulnerabilities in structured scenario."""
     logger.debug("Node: patch_node - Starting...")
     
-    constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
+    from prd_inator.schema import StructuredScenario
+    import json
+    
+    scenario_text = json.dumps(state["scenario"], indent=2)
     vulnerabilities_text = "\n".join([
         f"- {v['exploit_type']}: {v['description']}"
         for v in state["vulnerabilities"]
     ])
     
     prompt = get_prompt("patch_node").format(
-        scenario=state["scenario"],
-        constraints=constraints_text,
+        scenario=scenario_text,
         vulnerabilities=vulnerabilities_text
     )
     
     llm = get_llm("patch_node")
+    structured_llm = llm.with_structured_output(StructuredScenario)
     
-    # Define a simple schema for patched output
-    from pydantic import BaseModel
-    class PatchedOutput(BaseModel):
-        patched_scenario: str
-        patched_constraints: list[str]
-    
-    structured_llm = llm.with_structured_output(PatchedOutput)
     result = structured_llm.invoke(prompt)
-    
     logger.debug("Vulnerabilities patched")
     
-    return {
-        "scenario": result.patched_scenario,
-        "constraints": result.patched_constraints
-    }
+    return {"scenario": result.model_dump()}
 
 
 def evaluation_designer(state: GraphState) -> dict:
@@ -250,37 +246,78 @@ def evaluation_designer(state: GraphState) -> dict:
 
 
 def prd_generator(state: GraphState) -> dict:
-    """Assemble final PRD document with structured output."""
+    """Assemble final PRD from structured scenario."""
     logger.debug("Node: prd_generator - Starting...")
     
     try:
-        from prd_inator.schema import FinalPRD
+        from prd_inator.schema import FinalPRD, CandidatePRD
+        import json
         
-        constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
-        rubric_text = str(state["evaluation_rubric"])
-        vulnerabilities_text = "\n".join([
-            f"- {v['exploit_type']}: {v['description']}"
-            for v in state["vulnerabilities"]
-        ])
+        scenario_text = json.dumps(state["scenario"], indent=2)
+        tech_stack = state["employer_input"]["tech_stack"]
         
         prompt = get_prompt("prd_generator").format(
-            scenario=state["scenario"],
-            constraints=constraints_text,
-            rubric=rubric_text,
-            vulnerabilities=vulnerabilities_text
+            scenario=scenario_text,
+            tech_stack=tech_stack
         )
         
         llm = get_llm("prd_generator")
         structured_llm = llm.with_structured_output(FinalPRD)
         
         result = structured_llm.invoke(prompt)
-        logger.debug("PRD generated successfully")
+        logger.debug("PRD assembled successfully")
         
-        return {
-            "candidate_prd": result.candidate_prd,
-            "evaluation_rubric_text": result.evaluation_rubric,
-            "scoring_signals": result.scoring_signals
-        }
+        # Format structured PRD into markdown
+        prd = result.candidate_prd
+        candidate_prd_md = f"""# 1. Objective & Context
+
+{prd.objective_context}
+
+Subtle product value:
+{chr(10).join(f'* {v}' for v in prd.product_value)}
+
+---
+
+# 2. Technical Stack
+
+{chr(10).join(f'* {t}' for t in prd.tech_stack)}
+
+---
+
+# 3. Core Requirements
+
+{chr(10).join(f'{i+1}. {req.summary}{chr(10)}{chr(10).join(f"   * {d}" for d in req.details)}' for i, req in enumerate(prd.core_requirements))}
+
+---
+
+# 4. Functional Requirements
+
+{chr(10).join(f'## {comp.component_name}{chr(10)}{chr(10)}### `{comp.interface}`{chr(10)}{chr(10)}{chr(10).join(f"* {d}" for d in comp.details)}' for comp in prd.functional_requirements)}
+
+---
+
+# 5. Non-Functional Requirements
+
+## Performance
+{chr(10).join(f'* {r}' for r in prd.non_functional_requirements.performance)}
+
+## Resilience
+{chr(10).join(f'* {r}' for r in prd.non_functional_requirements.resilience)}
+
+## Security
+{chr(10).join(f'* {r}' for r in prd.non_functional_requirements.security)}
+
+## Developer Experience
+{chr(10).join(f'* {r}' for r in prd.non_functional_requirements.developer_experience)}
+
+---
+
+# 6. User Flow
+
+{chr(10).join(f'{i+1}. {step}' for i, step in enumerate(prd.user_flow))}
+"""
+        
+        return {"candidate_prd": candidate_prd_md}
     
     except Exception as e:
         logger.error(f"Error in prd_generator: {e}")

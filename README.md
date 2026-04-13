@@ -4,7 +4,7 @@ An autonomous LangGraph pipeline that generates AI-resistant technical assignmen
 
 ## What it does
 
-Takes a single employer input and runs it through a 9-node agentic pipeline: generating ideas, filtering out AI-solvable ones, injecting real-world constraints, red-teaming for shortcuts, and producing a structured PRD with a hidden evaluation rubric.
+Takes a single employer input and runs it through an 8-node agentic pipeline: generating ideas, filtering out AI-solvable ones, injecting real-world constraints, red-teaming for shortcuts, and producing a structured PRD.
 
 ## Setup
 
@@ -40,12 +40,10 @@ result = generate_prd(
     llm=llm
 )
 
-# Access outputs
-print(result.candidate_prd)        # Assignment for candidate
-print(result.evaluation_rubric)    # Scoring dimensions
-print(result.scoring_signals)      # Hidden traps and signals
+# Access output
+print(result.candidate_prd)  # Assignment for candidate
 
-# Save to files
+# Save to file
 with open("assignment.md", "w") as f:
     f.write(result.candidate_prd)
 ```
@@ -124,7 +122,6 @@ result = generate_prd(
 - `scenario_transformer`
 - `adversarial_agent`
 - `patch_node`
-- `evaluation_designer`
 - `prd_generator`
 
 ## Pipeline overview
@@ -135,21 +132,23 @@ Employer inputs
   → Diversity enforcer
   → Anti-AI filter          ↺ loops back if ideas are too weak (max 3x)
   → Constraint injector
-  → Scenario transformer
+  → Scenario transformer    (generates structured PRD components)
   → Adversarial agent
-  → Patch node
-  → Evaluation designer
-  → PRD generator
+  → Patch node              (hardens PRD against shortcuts)
+  → PRD generator           (assembles final document)
   → Output
 ```
 
 ## Output
 
-Each run produces:
+Each run produces a single structured PRD document with:
 
-- **Assignment PRD** — candidate-facing: narrative, problem statement, incomplete requirements, deliverables
-- **Evaluation rubric** — interviewer-only: scoring dimensions, failure signals
-- **Hidden traps** — edge cases and adversarial patches the candidate doesn't see
+- **Objective & Context** — business problem and what to build
+- **Technical Stack** — required technologies
+- **Core Requirements** — 3-5 main requirements with details
+- **Functional Requirements** — API endpoints/interfaces with specifications
+- **Non-Functional Requirements** — performance, resilience, security, developer experience
+- **User Flow** — end-to-end step-by-step flow
 
 ## Stack
 
