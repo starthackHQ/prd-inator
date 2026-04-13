@@ -1,10 +1,15 @@
-<img width="2000" height="640" alt="prd-inator" src="https://github.com/user-attachments/assets/72a841bb-4809-4a1c-9fa4-5108d7fcc8d3" />
-
+<img src="https://github.com/user-attachments/assets/72a841bb-4809-4a1c-9fa4-5108d7fcc8d3" alt="PRDinator" width="100%" />
+<br />
+<p align="center">
 An autonomous LangGraph pipeline that generates AI-resistant technical assignment PRDs. Give it a role, tech stack, and domain — it handles everything else.
+</p>
 
 ## What it does
 
 Takes a single employer input and runs it through an 8-node agentic pipeline: generating ideas, filtering out AI-solvable ones, injecting real-world constraints, red-teaming for shortcuts, and producing a structured PRD.
+```
+pip install prd-inator
+```
 
 ## Setup
 
