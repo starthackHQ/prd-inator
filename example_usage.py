@@ -1,108 +1,102 @@
-"""
-Example usage of prd-inator as a library.
+"""Example usage of prd-inator with the new simplified API."""
 
-Run this after installing: pip install prd-inator
-"""
+from langchain_openai import ChatOpenAI
+from prd_inator import generate_prd
 
-from prd_inator import generate_prd, LLMConfig
-
-
-def basic_example():
-    """Basic usage - simplest way to generate a PRD."""
-    print("=" * 60)
-    print("BASIC EXAMPLE")
-    print("=" * 60)
+# Example 1: Simple usage with a single LLM for all nodes
+def simple_example():
+    """Use the same LLM for all pipeline nodes."""
+    llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
     
     result = generate_prd(
         role="Backend Engineer",
         tech_stack="Python, FastAPI, PostgreSQL",
-        domain="Enterprise Data Collaboration and Governance",
-        seniority="Mid-level"
+        domain="Fintech",
+        seniority="Mid-level",
+        llm=llm
     )
     
-    # Access the results
-    print(f"Candidate PRD length: {len(result.candidate_prd)} chars")
-    print(f"Evaluation rubric length: {len(result.evaluation_rubric)} chars")
-    print(f"Scoring signals length: {len(result.scoring_signals)} chars")
-    
-    # Save to files
-    with open("assignment.md", "w", encoding="utf-8") as f:
-        f.write(result.candidate_prd)
-    
-    print("\n✅ PRD generated and saved to assignment.md")
+    print("=== Candidate PRD ===")
+    print(result.candidate_prd[:500])  # First 500 chars
+    print("\n=== Evaluation Rubric ===")
+    print(result.evaluation_rubric[:500])
+    print("\n=== Scoring Signals ===")
+    print(result.scoring_signals[:500])
 
 
+# Example 2: Advanced usage with different LLMs per node
 def advanced_example():
-    """Advanced usage - custom LLM configuration."""
-    print("\n" + "=" * 60)
-    print("ADVANCED EXAMPLE - Custom LLM Config")
-    print("=" * 60)
+    """Use different LLMs for specific nodes."""
+    from langchain_anthropic import ChatAnthropic
     
-    # Configure different models for different nodes
-    config = LLMConfig(
-        default_provider="openai",
-        default_model="gpt-4o",
-        node_configs={
-            # Use cheaper model for simple tasks
-            "diversity_enforcer": {"model": "gpt-4o-mini"},
-            "anti_ai_filter": {"model": "gpt-4o-mini"},
-            
-            # Use Claude for adversarial thinking
-            "adversarial_agent": {
-                "provider": "gemini",
-                "model": "gemini-3-flash-preview"
-            }
-        }
+    # Default LLM for most nodes
+    default_llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+    
+    # Use Claude for adversarial thinking
+    adversarial_llm = ChatAnthropic(
+        model="claude-3-5-sonnet-20241022",
+        temperature=0.9
     )
+    
+    # Use cheaper model for diversity enforcement
+    cheap_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
     
     result = generate_prd(
         role="Frontend Developer",
         tech_stack="React, TypeScript, Next.js",
         domain="Healthcare",
         seniority="Senior",
-        llm_config=config
+        llm=default_llm,
+        node_llms={
+            "adversarial_agent": adversarial_llm,
+            "diversity_enforcer": cheap_llm
+        }
     )
     
-    print(f"\n✅ PRD generated with custom LLM config")
-    print(f"Selected idea: {result.raw_state['selected_idea']['title']}")
+    # Save outputs
+    with open("assignment.md", "w") as f:
+        f.write(result.candidate_prd)
+    
+    with open("rubric.md", "w") as f:
+        f.write(result.evaluation_rubric)
+    
+    with open("signals.md", "w") as f:
+        f.write(result.scoring_signals)
+    
+    print("✅ PRD generated and saved to files!")
 
 
-def batch_example():
-    """Generate multiple PRDs for different roles."""
-    print("\n" + "=" * 60)
-    print("BATCH EXAMPLE - Multiple PRDs")
-    print("=" * 60)
+# Example 3: Using custom LLM configuration
+def custom_llm_example():
+    """Use your own custom LLM setup."""
     
-    roles = [
-        {
-            "role": "Backend Engineer",
-            "tech_stack": "Go, gRPC, PostgreSQL",
-            "domain": "E-commerce",
-            "seniority": "Junior"
-        },
-        {
-            "role": "Full-stack Developer",
-            "tech_stack": "React, Node.js, MongoDB",
-            "domain": "SaaS",
-            "seniority": "Mid-level"
-        }
-    ]
+    # You can use any LangChain-compatible LLM
+    # This could be a local model, custom wrapper, etc.
+    llm = ChatOpenAI(
+        model="gpt-4o",
+        temperature=0.7,
+        max_tokens=4000,
+        timeout=60,
+        max_retries=3
+    )
     
-    for i, role_spec in enumerate(roles, 1):
-        print(f"\nGenerating PRD {i}/{len(roles)}...")
-        result = generate_prd(**role_spec)
-        
-        filename = f"prd_{i}_{role_spec['role'].replace(' ', '_').lower()}.md"
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(result.candidate_prd)
-        
-        print(f"✅ Saved to {filename}")
+    result = generate_prd(
+        role="DevOps Engineer",
+        tech_stack="Kubernetes, Terraform, AWS",
+        domain="Cloud Infrastructure",
+        seniority="Senior",
+        llm=llm
+    )
+    
+    return result
 
 
 if __name__ == "__main__":
-    # Run examples
-    basic_example()
+    # Run simple example
+    simple_example()
     
-    # Uncomment to run advanced examples:
+    # Uncomment to run advanced example
     # advanced_example()
-    # batch_example()
+    
+    # Uncomment to run custom example
+    # custom_llm_example()

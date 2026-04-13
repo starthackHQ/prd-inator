@@ -5,8 +5,8 @@ from prd_inator.schema import (
     IdeaList, AntiAIScores, Constraints, Vulnerabilities,
     EvaluationRubric
 )
-from prd_inator.utils import get_llm, get_prompt, logger
-from prd_inator.config import get_llm_config
+from prd_inator.utils import get_prompt, logger
+from prd_inator.config import get_llm
 
 
 def employer_input_node(state: GraphState) -> dict:
@@ -31,10 +31,8 @@ def idea_divergence_engine(state: GraphState) -> dict:
         prompt = get_prompt("idea_divergence").format(**state["employer_input"])
         
         logger.debug(f"Prompt length: {len(prompt)} chars")
-        config = get_llm_config().get_config("idea_divergence")
-        logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
         
-        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.9)
+        llm = get_llm("idea_divergence")
         structured_llm = llm.with_structured_output(IdeaList)
         
         logger.debug("Calling LLM...")
@@ -63,10 +61,7 @@ def diversity_enforcer(state: GraphState) -> dict:
             **state["employer_input"]
         )
         
-        config = get_llm_config().get_config("diversity_enforcer")
-        logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-        
-        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.3)
+        llm = get_llm("diversity_enforcer")
         structured_llm = llm.with_structured_output(IdeaList)
         
         result = structured_llm.invoke(prompt)
@@ -94,10 +89,7 @@ def anti_ai_filter(state: GraphState) -> dict:
             **state["employer_input"]
         )
         
-        config = get_llm_config().get_config("anti_ai_filter")
-        logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-        
-        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.2)
+        llm = get_llm("anti_ai_filter")
         structured_llm = llm.with_structured_output(AntiAIScores)
         
         result = structured_llm.invoke(prompt)
@@ -146,10 +138,7 @@ def constraint_injector(state: GraphState) -> dict:
     
     prompt = get_prompt("constraint_injector").format(idea=idea_text, seniority=seniority)
     
-    config = get_llm_config().get_config("constraint_injector")
-    logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-    
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.7)
+    llm = get_llm("constraint_injector")
     structured_llm = llm.with_structured_output(Constraints)
     
     result = structured_llm.invoke(prompt)
@@ -178,10 +167,7 @@ def scenario_transformer(state: GraphState) -> dict:
         **state["employer_input"]
     )
     
-    config = get_llm_config().get_config("scenario_transformer")
-    logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-    
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.8)
+    llm = get_llm("scenario_transformer")
     result = llm.invoke(prompt)
     
     logger.debug("Scenario transformed")
@@ -199,10 +185,7 @@ def adversarial_agent(state: GraphState) -> dict:
         constraints=constraints_text
     )
     
-    config = get_llm_config().get_config("adversarial_agent")
-    logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-    
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.9)
+    llm = get_llm("adversarial_agent")
     structured_llm = llm.with_structured_output(Vulnerabilities)
     
     result = structured_llm.invoke(prompt)
@@ -227,10 +210,7 @@ def patch_node(state: GraphState) -> dict:
         vulnerabilities=vulnerabilities_text
     )
     
-    config = get_llm_config().get_config("patch_node")
-    logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-    
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.6)
+    llm = get_llm("patch_node")
     
     # Define a simple schema for patched output
     from pydantic import BaseModel
@@ -260,10 +240,7 @@ def evaluation_designer(state: GraphState) -> dict:
         constraints=constraints_text
     )
     
-    config = get_llm_config().get_config("evaluation_designer")
-    logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-    
-    llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.5)
+    llm = get_llm("evaluation_designer")
     structured_llm = llm.with_structured_output(EvaluationRubric)
     
     result = structured_llm.invoke(prompt)
@@ -293,10 +270,7 @@ def prd_generator(state: GraphState) -> dict:
             vulnerabilities=vulnerabilities_text
         )
         
-        config = get_llm_config().get_config("prd_generator")
-        logger.debug(f"Using LLM: {config['provider']}/{config['model']}")
-        
-        llm = get_llm(provider=config["provider"], model=config["model"], temperature=0.4)
+        llm = get_llm("prd_generator")
         structured_llm = llm.with_structured_output(FinalPRD)
         
         result = structured_llm.invoke(prompt)

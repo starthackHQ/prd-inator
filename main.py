@@ -1,4 +1,5 @@
 """CLI entry point for prd-inator."""
+import os
 from prd_inator import generate_prd
 from dotenv import load_dotenv
 
@@ -7,7 +8,15 @@ load_dotenv()
 
 def main():
     """Run the PRD generation pipeline."""
-    print("🚀 PRD-inator: AI-Resistant Assignment Generator\n")
+    
+    # Check if langchain-openai is installed
+    try:
+        from langchain_openai import ChatOpenAI
+    except ImportError:
+        print("❌ Error: langchain-openai is required for the CLI")
+        print("Install it with: pip install langchain-openai")
+        print("\nOr use the library API with your own LLM provider.")
+        return
     
     # Get employer inputs
     print("Enter assignment requirements:")
@@ -16,36 +25,34 @@ def main():
     domain = input("Domain (e.g., fintech, e-commerce, healthcare): ").strip()
     seniority = input("Seniority (e.g., junior, mid-level, senior): ").strip()
     
-    print("\n⚙️  Running pipeline...\n")
+    print("\nRunning pipeline...\n")
     
     try:
-        # Use the simple API
+        # Initialize LLM
+        llm = ChatOpenAI(
+            model=os.getenv("LLM_MODEL", "gpt-4o"),
+            temperature=0.7
+        )
+        
         result = generate_prd(
             role=role,
             tech_stack=tech_stack,
             domain=domain,
-            seniority=seniority
+            seniority=seniority,
+            llm=llm
         )
         
         print("✅ Pipeline complete!\n")
         
-        # Save candidate PRD
-        print("=" * 80)
-        print("CANDIDATE-FACING PRD")
-        print("=" * 80)
-        print(result.candidate_prd)
-        print("\n")
-        
+        # Save outputs
         with open("candidate_prd.md", "w", encoding="utf-8") as f:
             f.write(result.candidate_prd)
-        print("📄 Candidate PRD saved to candidate_prd.md\n")
+        print("📄 Candidate PRD saved to candidate_prd.md")
         
-        # Save evaluation rubric
         with open("evaluation_rubric.md", "w", encoding="utf-8") as f:
             f.write(result.evaluation_rubric)
         print("📄 Evaluation rubric saved to evaluation_rubric.md")
         
-        # Save scoring signals
         with open("scoring_signals.md", "w", encoding="utf-8") as f:
             f.write(result.scoring_signals)
         print("📄 Scoring signals saved to scoring_signals.md")

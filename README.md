@@ -27,12 +27,17 @@ cp .env.example .env
 
 ```python
 from prd_inator import generate_prd
+from langchain_openai import ChatOpenAI
+
+# Initialize your LLM
+llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
 
 result = generate_prd(
     role="Backend Engineer",
     tech_stack="Python, FastAPI, PostgreSQL",
     domain="Fintech",
-    seniority="Mid-level"
+    seniority="Mid-level",
+    llm=llm
 )
 
 # Access outputs
@@ -53,56 +58,62 @@ uv run main.py
 
 ## LLM Configuration
 
-### Default Behavior
+### Simple: Single LLM for All Nodes
 
-By default, the pipeline uses environment variables:
-
-- `LLM_PROVIDER` (default: `openai`)
-- `LLM_MODEL` (default: `gpt-4o`)
-
-### Per-Node Configuration via Environment Variables
-
-You can configure different models for specific nodes using env vars:
-
-```bash
-# Use GPT-4o for most nodes, but GPT-4o-mini for diversity enforcement
-LLM_MODEL=gpt-4o
-DIVERSITY_ENFORCER_MODEL=gpt-4o-mini
-
-# Use Claude for adversarial agent
-ADVERSARIAL_AGENT_PROVIDER=anthropic
-ADVERSARIAL_AGENT_MODEL=claude-3-5-sonnet-20241022
-```
-
-### Programmatic Configuration
-
-When using as a library, you can configure LLMs programmatically:
+Pass a pre-configured LLM instance to use for all pipeline nodes:
 
 ```python
-from prd_inator import run_pipeline, LLMConfig
+from langchain_openai import ChatOpenAI
+from prd_inator import generate_prd
 
-# Option 1: Same model for all nodes
-config = LLMConfig(
-    default_provider="openai",
-    default_model="gpt-4o"
+llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+
+result = generate_prd(
+    role="Backend Engineer",
+    tech_stack="Python, FastAPI, PostgreSQL",
+    domain="Fintech",
+    seniority="Mid-level",
+    llm=llm
 )
+```
 
-# Option 2: Different models per node
-config = LLMConfig(
-    default_provider="openai",
-    default_model="gpt-4o",
-    node_configs={
-        "idea_divergence": {"model": "gpt-4o"},
-        "anti_ai_filter": {"model": "gpt-4o-mini"},
-        "adversarial_agent": {
-            "provider": "anthropic",
-            "model": "claude-3-5-sonnet-20241022"
-        }
+### Advanced: Per-Node LLM Configuration
+
+Use different LLMs for specific nodes:
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+from prd_inator import generate_prd
+
+# Default LLM for most nodes
+default_llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+
+# Use Claude for adversarial thinking
+adversarial_llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0.9)
+
+# Use cheaper model for diversity enforcement
+cheap_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+
+result = generate_prd(
+    role="Frontend Developer",
+    tech_stack="React, TypeScript",
+    domain="Healthcare",
+    seniority="Senior",
+    llm=default_llm,
+    node_llms={
+        "adversarial_agent": adversarial_llm,
+        "diversity_enforcer": cheap_llm
     }
 )
-
-result = run_pipeline(employer_input, llm_config=config)
 ```
+
+### Why This Approach?
+
+- **Bring your own LLM**: Use any LangChain-compatible model (OpenAI, Anthropic, local models, custom wrappers)
+- **Full control**: Configure temperature, max_tokens, timeouts, retries, etc.
+- **No coupling**: The library doesn't manage API keys or provider initialization
+- **Flexible**: Mix and match models per node for cost/quality optimization
 
 ### Available Nodes for Configuration
 
@@ -114,7 +125,6 @@ result = run_pipeline(employer_input, llm_config=config)
 - `adversarial_agent`
 - `patch_node`
 - `evaluation_designer`
-- `self_critique`
 - `prd_generator`
 
 ## Pipeline overview

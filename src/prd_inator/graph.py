@@ -1,9 +1,11 @@
 """LangGraph pipeline orchestration."""
-from typing import Optional
+from typing import Dict
+from langchain_core.language_models import BaseChatModel
+from langchain_core.runnables import Runnable
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import RetryPolicy
 from prd_inator.state import GraphState
-from prd_inator.config import LLMConfig, set_llm_config
+from prd_inator.config import set_llms
 from prd_inator.node import (
     employer_input_node,
     idea_divergence_engine,
@@ -74,21 +76,22 @@ def build_graph():
 
 def run_pipeline(
     employer_input: dict,
-    llm_config: Optional[LLMConfig] = None
+    llm: BaseChatModel | Runnable | None = None,
+    node_llms: Dict[str, BaseChatModel | Runnable] | None = None
 ) -> dict:
     """
     Run the complete pipeline with employer inputs.
     
     Args:
         employer_input: Dict with role, tech_stack, domain, seniority
-        llm_config: Optional LLMConfig to override default configuration
+        llm: Single LLM instance to use for all nodes
+        node_llms: Per-node LLM overrides, e.g., {"idea_divergence": model1, "anti_ai_filter": model2}
         
     Returns:
         Final state dict with generated PRD
     """
-    # Set LLM config if provided
-    if llm_config:
-        set_llm_config(llm_config)
+    # Set LLMs
+    set_llms(default_llm=llm, node_llms=node_llms)
     
     graph = build_graph()
     
@@ -109,6 +112,3 @@ def run_pipeline(
     
     result = graph.invoke(initial_state)
     return result
-
-
-

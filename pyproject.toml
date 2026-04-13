@@ -4,15 +4,47 @@ version = "0.1.0"
 description = "An autonomous LangGraph pipeline that generates AI-resistant technical take home assignments."
 readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Arsh", email = "arsh@starthack.io"}
+]
+keywords = ["langgraph", "llm", "prd", "technical-assignment", "ai-resistant"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+
 dependencies = [
-    "langchain-openai>=1.1.12",
     "langgraph>=1.1.6",
+    "langchain>=1.2.15",
     "python-dotenv>=1.2.2",
     "pyyaml>=6.0",
     "pydantic>=2.0",
-    "langchain-google-genai>=4.2.1",
-    "langchain>=1.2.15",
 ]
+
+[project.optional-dependencies]
+cli = ["langchain-openai>=1.1.12"]
+openai = ["langchain-openai>=1.1.12"]
+anthropic = ["langchain-anthropic>=0.1.0"]
+google = ["langchain-google-genai>=4.2.1"]
+all = ["langchain-openai>=1.1.12", "langchain-anthropic>=0.1.0", "langchain-google-genai>=4.2.1"]
+
+[project.urls]
+Homepage = "https://github.com/starthackHQ/prd-inator"
+Repository = "https://github.com/starthackHQ/prd-inator"
+Issues = "https://github.com/starthackHQ/prd-inator/issues"
 
 [build-system]
 requires = ["hatchling"]
@@ -20,3 +52,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/prd_inator"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/prd_inator/prompts.yml" = "prd_inator/prompts.yml"
+
+[tool.hatch.version]
+path = "src/prd_inator/__init__.py"

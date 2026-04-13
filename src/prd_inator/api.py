@@ -3,41 +3,43 @@ PRD-inator: Generate AI-resistant technical assignment PRDs.
 
 Simple usage:
     >>> from prd_inator import generate_prd
+    >>> from langchain_openai import ChatOpenAI
+    >>> 
+    >>> llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
     >>> 
     >>> result = generate_prd(
     ...     role="Backend Engineer",
     ...     tech_stack="Python, FastAPI, PostgreSQL",
     ...     domain="Fintech",
-    ...     seniority="Mid-level"
+    ...     seniority="Mid-level",
+    ...     llm=llm
     ... )
     >>> 
     >>> print(result.candidate_prd)
     >>> print(result.evaluation_rubric)
     >>> print(result.scoring_signals)
 
-Advanced usage with custom LLM config:
-    >>> from prd_inator import generate_prd, LLMConfig
+Advanced usage with per-node LLMs:
+    >>> from langchain_openai import ChatOpenAI
+    >>> from langchain_anthropic import ChatAnthropic
     >>> 
-    >>> config = LLMConfig(
-    ...     default_provider="openai",
-    ...     default_model="gpt-4o",
-    ...     node_configs={
-    ...         "adversarial_agent": {"provider": "anthropic", "model": "claude-3-5-sonnet"}
-    ...     }
-    ... )
+    >>> default_llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+    >>> adversarial_llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0.9)
     >>> 
     >>> result = generate_prd(
     ...     role="Frontend Developer",
     ...     tech_stack="React, TypeScript",
     ...     domain="Healthcare",
     ...     seniority="Senior",
-    ...     llm_config=config
+    ...     llm=default_llm,
+    ...     node_llms={"adversarial_agent": adversarial_llm}
     ... )
 """
 
-from typing import Optional, NamedTuple
+from typing import Dict, NamedTuple
+from langchain_core.language_models import BaseChatModel
+from langchain_core.runnables import Runnable
 from prd_inator.graph import run_pipeline
-from prd_inator.config import LLMConfig, set_llm_config
 
 
 class PRDResult(NamedTuple):
@@ -61,7 +63,8 @@ def generate_prd(
     tech_stack: str,
     domain: str,
     seniority: str,
-    llm_config: Optional[LLMConfig] = None
+    llm: BaseChatModel | Runnable,
+    node_llms: Dict[str, BaseChatModel | Runnable] | None = None
 ) -> PRDResult:
     """
     Generate an AI-resistant technical assignment PRD.
@@ -80,10 +83,8 @@ def generate_prd(
         tech_stack: Technologies to use (e.g., "Python, FastAPI, PostgreSQL")
         domain: Business domain (e.g., "Fintech", "Healthcare", "E-commerce")
         seniority: Experience level (e.g., "Junior", "Mid-level", "Senior", "Fresher")
-        llm_config: Optional LLM configuration. If not provided, reads from environment variables:
-                   - LLM_PROVIDER (default: "openai")
-                   - LLM_MODEL (default: "gpt-4o")
-                   - Per-node overrides: {NODE_NAME}_PROVIDER, {NODE_NAME}_MODEL
+        llm: Pre-configured LLM instance to use for all nodes
+        node_llms: Optional per-node LLM overrides, e.g., {"adversarial_agent": custom_llm}
     
     Returns:
         PRDResult: Named tuple containing:
@@ -97,11 +98,16 @@ def generate_prd(
         RuntimeError: If pipeline fails after retries
     
     Example:
+        >>> from langchain_openai import ChatOpenAI
+        >>> 
+        >>> llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+        >>> 
         >>> result = generate_prd(
         ...     role="Backend Engineer",
         ...     tech_stack="Python, FastAPI, PostgreSQL",
         ...     domain="Fintech",
-        ...     seniority="Mid-level"
+        ...     seniority="Mid-level",
+        ...     llm=llm
         ... )
         >>> 
         >>> # Save to files
@@ -110,17 +116,6 @@ def generate_prd(
         >>> 
         >>> with open("rubric.md", "w") as f:
         ...     f.write(result.evaluation_rubric)
-    
-    Environment Variables:
-        Required:
-            - OPENAI_API_KEY or GOOGLE_API_KEY (depending on provider)
-        
-        Optional:
-            - DEBUG: Set to "true" for verbose logging
-            - LLM_PROVIDER: Default provider ("openai" or "gemini")
-            - LLM_MODEL: Default model name
-            - {NODE}_PROVIDER: Override provider for specific node
-            - {NODE}_MODEL: Override model for specific node
     
     Note:
         The pipeline typically takes 2-5 minutes to complete, depending on:
@@ -141,7 +136,7 @@ def generate_prd(
     }
     
     # Run pipeline
-    result = run_pipeline(employer_input, llm_config=llm_config)
+    result = run_pipeline(employer_input, llm=llm, node_llms=node_llms)
     
     # Return structured result
     return PRDResult(
@@ -152,4 +147,4 @@ def generate_prd(
     )
 
 
-__all__ = ["generate_prd", "PRDResult", "LLMConfig"]
+__all__ = ["generate_prd", "PRDResult"]
