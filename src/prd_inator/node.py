@@ -32,7 +32,7 @@ def idea_divergence_engine(state: GraphState) -> dict:
         logger.debug(f"Prompt length: {len(prompt)} chars")
         
         llm = get_llm("idea_divergence")
-        structured_llm = llm.with_structured_output(IdeaList)
+        structured_llm = llm.with_structured_output(IdeaList, method="json_schema")
         
         logger.debug("Calling LLM...")
         result = structured_llm.invoke(prompt)
@@ -61,7 +61,7 @@ def diversity_enforcer(state: GraphState) -> dict:
         )
         
         llm = get_llm("diversity_enforcer")
-        structured_llm = llm.with_structured_output(IdeaList)
+        structured_llm = llm.with_structured_output(IdeaList, method="json_schema")
         
         result = structured_llm.invoke(prompt)
         logger.debug(f"Filtered to {len(result.ideas)} ideas")
@@ -89,7 +89,7 @@ def anti_ai_filter(state: GraphState) -> dict:
         )
         
         llm = get_llm("anti_ai_filter")
-        structured_llm = llm.with_structured_output(AntiAIScores)
+        structured_llm = llm.with_structured_output(AntiAIScores, method="json_schema")
         
         result = structured_llm.invoke(prompt)
         scores = result.scores
@@ -138,7 +138,7 @@ def constraint_injector(state: GraphState) -> dict:
     prompt = get_prompt("constraint_injector").format(idea=idea_text, seniority=seniority)
     
     llm = get_llm("constraint_injector")
-    structured_llm = llm.with_structured_output(Constraints)
+    structured_llm = llm.with_structured_output(Constraints, method="json_schema")
     
     result = structured_llm.invoke(prompt)
     logger.debug("Constraints injected")
@@ -169,7 +169,7 @@ def scenario_transformer(state: GraphState) -> dict:
     )
     
     llm = get_llm("scenario_transformer")
-    structured_llm = llm.with_structured_output(StructuredScenario)
+    structured_llm = llm.with_structured_output(StructuredScenario, method="json_schema")
     
     result = structured_llm.invoke(prompt)
     logger.debug("Structured scenario created")
@@ -189,7 +189,7 @@ def adversarial_agent(state: GraphState) -> dict:
     )
     
     llm = get_llm("adversarial_agent")
-    structured_llm = llm.with_structured_output(Vulnerabilities)
+    structured_llm = llm.with_structured_output(Vulnerabilities, method="json_schema")
     
     result = structured_llm.invoke(prompt)
     logger.debug(f"Found {len(result.vulnerabilities)} vulnerabilities")
@@ -216,7 +216,7 @@ def patch_node(state: GraphState) -> dict:
     )
     
     llm = get_llm("patch_node")
-    structured_llm = llm.with_structured_output(StructuredScenario)
+    structured_llm = llm.with_structured_output(StructuredScenario, method="json_schema")
     
     result = structured_llm.invoke(prompt)
     logger.debug("Vulnerabilities patched")
@@ -241,7 +241,7 @@ def prd_generator(state: GraphState) -> dict:
         )
         
         llm = get_llm("prd_generator")
-        structured_llm = llm.with_structured_output(CandidatePRD)
+        structured_llm = llm.with_structured_output(CandidatePRD, method="json_schema")
         
         result = structured_llm.invoke(prompt)
         logger.debug("PRD assembled successfully")

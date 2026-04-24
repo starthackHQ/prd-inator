@@ -1,6 +1,6 @@
 """prd-inator: Autonomous LangGraph pipeline for AI-resistant PRDs."""
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 # Public API
 from prd_inator.api import generate_prd, PRDResult
