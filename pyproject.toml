@@ -1,6 +1,6 @@
 [project]
 name = "prd-inator"
-version = "0.3.1"
+version = "0.3.2"
 description = "An autonomous LangGraph pipeline that generates AI-resistant technical take home assignments."
 readme = "README.md"
 requires-python = ">=3.11"

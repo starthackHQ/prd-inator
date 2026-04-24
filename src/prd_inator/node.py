@@ -229,7 +229,7 @@ def prd_generator(state: GraphState) -> dict:
     logger.debug("Node: prd_generator - Starting...")
     
     try:
-        from prd_inator.schema import FinalPRD, CandidatePRD
+        from prd_inator.schema import CandidatePRD
         import json
         
         scenario_text = json.dumps(state["scenario"], indent=2)
@@ -241,13 +241,13 @@ def prd_generator(state: GraphState) -> dict:
         )
         
         llm = get_llm("prd_generator")
-        structured_llm = llm.with_structured_output(FinalPRD)
+        structured_llm = llm.with_structured_output(CandidatePRD)
         
         result = structured_llm.invoke(prompt)
         logger.debug("PRD assembled successfully")
         
         # Format structured PRD into markdown
-        prd = result.candidate_prd
+        prd = result
         candidate_prd_md = f"""# 1. Objective & Context
 
 {prd.objective_context}
