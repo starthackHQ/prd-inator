@@ -2,8 +2,7 @@
 from typing import Literal
 from prd_inator.state import GraphState
 from prd_inator.schema import (
-    IdeaList, AntiAIScores, Constraints, Vulnerabilities,
-    EvaluationRubric
+    IdeaList, AntiAIScores, Constraints, Vulnerabilities
 )
 from prd_inator.utils import get_prompt, logger
 from prd_inator.config import get_llm
@@ -223,26 +222,6 @@ def patch_node(state: GraphState) -> dict:
     logger.debug("Vulnerabilities patched")
     
     return {"scenario": result.model_dump()}
-
-
-def evaluation_designer(state: GraphState) -> dict:
-    """Design scoring rubric for the assignment."""
-    logger.debug("Node: evaluation_designer - Starting...")
-    
-    constraints_text = "\n".join([f"- {c}" for c in state["constraints"]])
-    
-    prompt = get_prompt("evaluation_designer").format(
-        scenario=state["scenario"],
-        constraints=constraints_text
-    )
-    
-    llm = get_llm("evaluation_designer")
-    structured_llm = llm.with_structured_output(EvaluationRubric)
-    
-    result = structured_llm.invoke(prompt)
-    logger.debug("Evaluation rubric designed")
-    
-    return {"evaluation_rubric": result.model_dump()}
 
 
 def prd_generator(state: GraphState) -> dict:

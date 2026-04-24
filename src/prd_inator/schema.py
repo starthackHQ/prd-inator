@@ -48,20 +48,6 @@ class Vulnerabilities(BaseModel):
     vulnerabilities: List[Vulnerability]
 
 
-class ScoringDimension(BaseModel):
-    """Single scoring dimension in rubric."""
-    name: str
-    weight: float = Field(ge=0, le=1)
-    excellent: str = Field(description="What 4-5 looks like")
-    passing: str = Field(description="What 2-3 looks like")
-    failure: str = Field(description="What 0-1 looks like")
-
-
-class EvaluationRubric(BaseModel):
-    """Complete evaluation rubric."""
-    dimensions: List[ScoringDimension]
-
-
 class CoreRequirement(BaseModel):
     """Single core requirement."""
     summary: str = Field(description="One-line requirement summary")
