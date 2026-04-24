@@ -51,32 +51,32 @@ class Vulnerabilities(BaseModel):
 class CoreRequirement(BaseModel):
     """Single core requirement."""
     summary: str = Field(description="One-line requirement summary")
-    details: List[str] = Field(description="2-3 key details", max_length=3)
+    details: List[str] = Field(description="2-3 key details")
 
 
 class FunctionalComponent(BaseModel):
     """Functional component with interface details."""
     component_name: str
     interface: str = Field(description="API endpoint or interface signature")
-    details: List[str] = Field(description="3-5 implementation details", max_length=5)
+    details: List[str] = Field(description="3-5 implementation details")
 
 
 class NonFunctionalRequirement(BaseModel):
     """Non-functional requirements by category."""
-    performance: List[str] = Field(max_length=2)
-    resilience: List[str] = Field(max_length=2)
-    security: List[str] = Field(max_length=2)
-    developer_experience: List[str] = Field(max_length=2)
+    performance: List[str]
+    resilience: List[str]
+    security: List[str]
+    developer_experience: List[str]
 
 
 class StructuredScenario(BaseModel):
     """Structured scenario output from scenario_transformer."""
     objective_context: str = Field(description="2-3 sentences on business problem and what to build")
-    product_value: List[str] = Field(description="3-4 benefit bullets", min_length=3, max_length=4)
-    core_requirements: List[CoreRequirement] = Field(description="3-5 requirements", min_length=3, max_length=5)
-    functional_components: List[FunctionalComponent] = Field(description="2-3 components", max_length=3)
+    product_value: List[str] = Field(description="3-4 benefit bullets")
+    core_requirements: List[CoreRequirement] = Field(description="3-5 requirements")
+    functional_components: List[FunctionalComponent] = Field(description="2-3 components")
     non_functional_requirements: NonFunctionalRequirement
-    user_flow: List[str] = Field(description="5-6 step flow", min_length=5, max_length=6)
+    user_flow: List[str] = Field(description="5-6 step flow")
 
 
 class CandidatePRD(BaseModel):
