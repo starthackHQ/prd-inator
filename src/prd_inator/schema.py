@@ -1,6 +1,6 @@
 """Data schemas and models."""
 from typing import List, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Idea(BaseModel):
@@ -68,6 +68,11 @@ class NonFunctionalRequirement(BaseModel):
     security: List[str]
     developer_experience: List[str]
 
+    @field_validator("performance", "resilience", "security", "developer_experience", mode="before")
+    @classmethod
+    def truncate_to_3(cls, v: list) -> list:
+        return v[:3] if isinstance(v, list) else v
+
 
 class StructuredScenario(BaseModel):
     """Structured scenario output from scenario_transformer."""
@@ -77,6 +82,16 @@ class StructuredScenario(BaseModel):
     functional_components: List[FunctionalComponent] = Field(description="2-3 components")
     non_functional_requirements: NonFunctionalRequirement
     user_flow: List[str] = Field(description="5-6 step flow")
+
+    @field_validator("core_requirements", mode="before")
+    @classmethod
+    def truncate_core_requirements(cls, v: list) -> list:
+        return v[:5] if isinstance(v, list) else v
+
+    @field_validator("functional_components", mode="before")
+    @classmethod
+    def truncate_functional_components(cls, v: list) -> list:
+        return v[:3] if isinstance(v, list) else v
 
 
 class CandidatePRD(BaseModel):
@@ -88,6 +103,16 @@ class CandidatePRD(BaseModel):
     functional_requirements: List[FunctionalComponent]
     non_functional_requirements: NonFunctionalRequirement
     user_flow: List[str]
+
+    @field_validator("core_requirements", mode="before")
+    @classmethod
+    def truncate_core_requirements(cls, v: list) -> list:
+        return v[:5] if isinstance(v, list) else v
+
+    @field_validator("functional_requirements", mode="before")
+    @classmethod
+    def truncate_functional_requirements(cls, v: list) -> list:
+        return v[:3] if isinstance(v, list) else v
 
 
 class FinalPRD(BaseModel):
